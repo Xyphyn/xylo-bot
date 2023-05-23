@@ -2,6 +2,7 @@ import { SlashSubcommand } from '@commands/command.js'
 import { BotEmoji, Color } from '@config/config.js'
 import { db } from 'app.js'
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
+import { mute } from './mute.js'
 
 export default {
     metadata: {
@@ -66,5 +67,40 @@ export default {
         await interaction.editReply({
             embeds: [embed],
         })
+
+        const warnings = await db.warning.findMany({
+            where: {
+                guild_id: interaction.guild.id,
+                user_id: user.id,
+            },
+        })
+
+        if (
+            warnings.filter(
+                (result) =>
+                    Date.now() - result.time.getTime() <= 3 * 60 * 60 * 1000
+            ).length >= 3
+        ) {
+            const member = await interaction.guild.members.fetch({
+                user,
+            })
+
+            const embed = await mute(member, 60 * 60 * 1000)
+
+            if (!silent) {
+                await interaction.channel?.send({
+                    embeds: [embed],
+                })
+            }
+
+            await user.send({
+                embeds: [
+                    embed.setFooter({
+                        text: interaction.guild.name,
+                        iconURL: interaction.guild.iconURL() || '',
+                    }),
+                ],
+            })
+        }
     },
 } as SlashSubcommand

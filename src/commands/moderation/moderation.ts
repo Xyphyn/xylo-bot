@@ -2,8 +2,9 @@ import { SlashCommand } from '@commands/command'
 import { PermissionsBitField } from 'discord.js'
 import warnings from '@commands/moderation/warnings.js'
 import warn from '@commands/moderation/warn.js'
+import mute from '@commands/moderation/mute.js'
 
-const subcommands = [warnings, warn]
+const subcommands = [warnings, warn, mute]
 
 export default {
     metadata: {
