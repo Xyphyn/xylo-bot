@@ -15,15 +15,22 @@ export default {
                 required: true,
                 name: 'user',
             },
+            {
+                type: ApplicationCommandOptionType.Boolean,
+                description: 'Should the message be public? (Default: yes)',
+                required: false,
+                name: 'silent',
+            },
         ],
     },
 
     async execute({ interaction }) {
-        await interaction.deferReply()
+        const user = interaction.options.getUser('user')!
+        const silent = interaction.options.getBoolean('silent') || true
+
+        await interaction.deferReply({ ephemeral: silent })
 
         if (!interaction.guild) return
-
-        const user = interaction.options.getUser('user')!
 
         const results = await db.warning.findMany({
             where: {
@@ -43,7 +50,7 @@ export default {
                 results
                     .map(
                         (result) =>
-                            `<t:${Math.floor(
+                            `\`${result.id}\` <t:${Math.floor(
                                 result.time.getTime() / 1000
                             )}:R> ${result.reason}`
                     )

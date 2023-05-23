@@ -1,8 +1,16 @@
 import { SlashSubcommand } from '@commands/command.js'
 import { BotEmoji, Color } from '@config/config.js'
 import { db } from 'app.js'
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
+import {
+    ActionRowBuilder,
+    ApplicationCommandOptionType,
+    ButtonBuilder,
+    ButtonInteraction,
+    ButtonStyle,
+    EmbedBuilder,
+} from 'discord.js'
 import { mute } from './mute.js'
+import { deleteWarning } from '@commands/moderation/delwarn.js'
 
 export default {
     metadata: {
@@ -40,11 +48,11 @@ export default {
         const reason =
             interaction.options.getString('reason') || 'No reason provided.'
 
-        await interaction.deferReply({
+        const message = await interaction.deferReply({
             ephemeral: silent,
         })
 
-        await db.warning.create({
+        const warning = await db.warning.create({
             data: {
                 guild_id: interaction.guild.id,
                 user_id: user.id,
@@ -52,6 +60,15 @@ export default {
                 time: new Date(),
             },
         })
+
+        const buttonId = `xylo:moderation:warn:undo:${interaction.id}`
+
+        const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
+            new ButtonBuilder()
+                .setStyle(ButtonStyle.Danger)
+                .setLabel('Delete')
+                .setCustomId(buttonId)
+        )
 
         const embed = new EmbedBuilder()
             .setTitle(`Warning`)
@@ -63,9 +80,13 @@ export default {
                     value: reason,
                 },
             ])
+            .setFooter({
+                text: `Warning ID: ${warning.id}`,
+            })
 
         await interaction.editReply({
             embeds: [embed],
+            components: [actionRow],
         })
 
         const warnings = await db.warning.findMany({
@@ -102,5 +123,34 @@ export default {
                 ],
             })
         }
+
+        message
+            .awaitMessageComponent({
+                dispose: true,
+                interactionResponse: message,
+                time: 30 * 1000,
+            })
+            .then(async (int) => {
+                await int.deferReply({ ephemeral: silent })
+
+                const embed = await deleteWarning(warning.id, warning.guild_id)
+
+                await int.editReply({
+                    embeds: [embed],
+                })
+
+                await interaction.editReply({
+                    components: [
+                        new ActionRowBuilder<ButtonBuilder>().setComponents(
+                            new ButtonBuilder()
+                                .setStyle(ButtonStyle.Danger)
+                                .setLabel('Delete')
+                                .setCustomId('disabled')
+                                .setDisabled(true)
+                        ),
+                    ],
+                })
+            })
+            .catch()
     },
 } as SlashSubcommand

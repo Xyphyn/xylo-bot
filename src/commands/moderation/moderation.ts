@@ -3,8 +3,10 @@ import { PermissionsBitField } from 'discord.js'
 import warnings from '@commands/moderation/warnings.js'
 import warn from '@commands/moderation/warn.js'
 import mute from '@commands/moderation/mute.js'
+import delwarn from '@commands/moderation/delwarn.js'
+import unmute from '@commands/moderation/unmute.js'
 
-const subcommands = [warnings, warn, mute]
+const subcommands = [warnings, warn, mute, delwarn, unmute]
 
 export default {
     metadata: {

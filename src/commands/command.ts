@@ -8,8 +8,9 @@ import {
     REST,
     Routes,
 } from 'discord.js'
-import hello from '@commands/ping.js'
+import ping from '@commands/ping.js'
 import moderation from '@commands/moderation/moderation.js'
+import translate from '@commands/translate.js'
 
 export interface SlashCommand {
     metadata: ChatInputApplicationCommandData
@@ -42,7 +43,7 @@ export interface SlashSubcommand {
     }) => Promise<boolean | void>
 }
 
-const commandList = [hello, moderation]
+const commandList = [ping, moderation, translate]
 
 export const commands = new Map<string, SlashCommand>(
     commandList.map((command) => [command.metadata.name, command])
