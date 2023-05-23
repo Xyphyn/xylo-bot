@@ -7,15 +7,15 @@ import {
     EmbedBuilder,
     Interaction,
 } from 'discord.js'
-import { SlashCommand } from './command'
-import { db } from '../app'
-import { Color } from '../config/config'
+import { SlashCommand } from '@commands/command'
+import { db } from 'app.js'
+import { Color } from '@config/config.js'
 
 async function fetchPing(
     client: Client
 ): Promise<{ discordPing: number; redisPing: number }> {
     const redisStart = Date.now()
-    await db.ping()
+    await db.warning.findFirst()
     return { discordPing: client.ws.ping, redisPing: Date.now() - redisStart }
 }
 

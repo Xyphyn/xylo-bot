@@ -5,7 +5,11 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "moduleResolution": "node",
-
+        "baseUrl": "./src",
+        "paths": {
+            "@commands/*": ["commands/*"],
+            "@config/*": ["config/*"]
+        },
         "strict": true,
         // "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
         // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
@@ -30,5 +34,7 @@
         // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
         "skipLibCheck": true /* Skip type checking all .d.ts files. */,
         "outDir": "dist"
-    }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
 }
