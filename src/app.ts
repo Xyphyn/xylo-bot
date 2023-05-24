@@ -13,6 +13,7 @@ import { config as dotenv } from 'dotenv'
 import chalk from 'chalk'
 import { BotEmoji, Color } from '@config/config.js'
 import { PrismaClient } from '@prisma/client'
+import interactionHandler from 'events/interaction.js'
 
 // starting stuff
 dotenv()
@@ -24,18 +25,18 @@ const spinner = ora({
     color: 'blue',
 }).start()
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] })
+export const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 
 await registerCommands()
-
 await client.login(process.env.DISCORD_TOKEN)
-
 export const db = new PrismaClient()
 
 spinner.succeed(`${chalk.green(`Started in ${Date.now() - startTime}ms`)}`)
 
 client.on('interactionCreate', async (interaction) => {
     try {
+        interactionHandler.execute({ interaction })
+
         if (interaction instanceof ChatInputCommandInteraction) {
             const command = commands.get(interaction.commandName)
 

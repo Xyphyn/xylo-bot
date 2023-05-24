@@ -24,3 +24,21 @@ model GuildConfig {
   id     String @id
   config Json
 }
+
+model RoleSelector {
+  id         Int                  @id @default(autoincrement())
+  guild_id   String
+  channel_id String
+  message_id String
+  values     RoleSelectorValues[]
+}
+
+model RoleSelectorValues {
+  id             Int          @id @default(autoincrement())
+  role_id        String
+  label          String
+  description    String?
+  emoji          String?
+  RoleSelector   RoleSelector @relation(fields: [roleSelectorId], references: [id])
+  roleSelectorId Int
+}

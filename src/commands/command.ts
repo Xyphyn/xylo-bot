@@ -12,6 +12,7 @@ import ping from '@commands/ping.js'
 import moderation from '@commands/moderation/moderation.js'
 import translate from '@commands/translate.js'
 import color from '@commands/color.js'
+import rolepicker from '@commands/rolepicker/rolepicker.js'
 
 export interface SlashCommand {
     metadata: ChatInputApplicationCommandData
@@ -44,7 +45,7 @@ export interface SlashSubcommand {
     }) => Promise<boolean | void>
 }
 
-const commandList = [ping, moderation, translate, color]
+const commandList = [ping, moderation, translate, color, rolepicker]
 
 export const commands = new Map<string, SlashCommand>(
     commandList.map((command) => [command.metadata.name, command])
