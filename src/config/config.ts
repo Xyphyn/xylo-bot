@@ -1,6 +1,4 @@
-export const config = {
-    color: {},
-}
+import { db } from 'app.js'
 
 export enum Color {
     primary = 0xffffff,
@@ -13,4 +11,10 @@ export enum BotEmoji {
     error = '<:error:1110296556118233250>',
     success = '<:success:1110297580358864966>',
     warning = '<:warning:1110297581281619969>',
+}
+
+export interface GuildConfig {
+    moderation: {
+        warningThreshold: number
+    }
 }

@@ -19,3 +19,8 @@ model Warning {
   reason   String
   time     DateTime
 }
+
+model GuildConfig {
+  id     String @id
+  config Json
+}
