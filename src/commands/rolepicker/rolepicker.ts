@@ -55,7 +55,7 @@ async function handleSelection(interaction: StringSelectMenuInteraction) {
 
     for (const value of selector.values) {
         try {
-            if (interaction.values.includes(value.id.toString())) {
+            if (interaction.values.includes(value.role_id.toString())) {
                 await member.roles.add(value.role_id)
             } else {
                 await member.roles.remove(value.role_id)
