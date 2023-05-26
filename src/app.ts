@@ -34,54 +34,60 @@ export const db = new PrismaClient()
 spinner.succeed(`${chalk.green(`Started in ${Date.now() - startTime}ms`)}`)
 
 client.on('interactionCreate', async (interaction) => {
-    try {
-        interactionHandler.execute({ interaction })
+    interactionHandler.execute({ interaction })
 
-        if (interaction instanceof ChatInputCommandInteraction) {
-            const command = commands.get(interaction.commandName)
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const command = commands.get(interaction.commandName)
 
-            if (interaction.memberPermissions) {
-                if (
-                    !interaction.memberPermissions.has(
-                        command?.permission ??
-                            PermissionsBitField.Flags.SendMessages
+        if (interaction.memberPermissions) {
+            if (
+                !interaction.memberPermissions.has(
+                    command?.permission ??
+                        PermissionsBitField.Flags.SendMessages
+                )
+            ) {
+                const errorEmbed = new EmbedBuilder()
+                    .setTitle('Missing permission')
+                    .setColor(Color.error)
+                    .setDescription(
+                        `${BotEmoji.error} You don't have permission to use that command.`
                     )
-                ) {
-                    const errorEmbed = new EmbedBuilder()
-                        .setTitle('Missing permission')
-                        .setColor(Color.error)
-                        .setDescription(
-                            `${BotEmoji.error} You don't have permission to use that command.`
-                        )
 
-                    await interaction.reply({
-                        embeds: [errorEmbed],
-                    })
+                await interaction.reply({
+                    embeds: [errorEmbed],
+                })
 
-                    return
-                }
+                return
             }
-
-            command?.execute({ interaction, client })
         }
-    } catch (error) {
-        console.error(error)
 
-        const errorEmbed = new EmbedBuilder()
-            .setTitle('Error')
-            .setColor(Color.error)
-            .setDescription(
-                `${BotEmoji.error} There was an error executing the command.`
-            )
-            .addFields([
-                {
-                    name: 'Message',
-                    value: `\`${error}\``,
-                },
-            ])
+        if (!command) return
 
-        interaction.channel?.send({
-            embeds: [errorEmbed],
-        })
+        try {
+            await command.execute({ interaction, client })
+        } catch (err) {
+            console.error(err)
+
+            const errorEmbed = new EmbedBuilder()
+                .setTitle('Error')
+                .setColor(Color.error)
+                .setDescription(
+                    `${BotEmoji.error} There was an error executing the command.`
+                )
+                .addFields([
+                    {
+                        name: 'Message',
+                        value: `\`${err}\``,
+                    },
+                ])
+
+            interaction.channel?.send({
+                embeds: [errorEmbed],
+            })
+        }
     }
+})
+
+client.on('error', (err) => {
+    console.error(err)
 })
