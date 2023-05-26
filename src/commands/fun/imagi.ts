@@ -114,13 +114,17 @@ export default {
 
             const next = interaction.customId.startsWith(`xylo:fun:imagi:next`)
 
+            let prevIndex = index
+
             if (next) index++
             else index--
 
             while (
-                posts[index].image.endsWith('mp4') ||
-                posts[index].image.endsWith('mov') ||
-                posts[index].image.endsWith('webm')
+                index > 0 &&
+                index < posts.length - 1 &&
+                (posts[index].image.endsWith('mp4') ||
+                    posts[index].image.endsWith('mov') ||
+                    posts[index].image.endsWith('webm'))
             ) {
                 if (next) index++
                 else index--
@@ -138,6 +142,14 @@ export default {
                 actionRow.components[1].setDisabled(true)
             } else {
                 actionRow.components[1].setDisabled(false)
+            }
+
+            if (
+                posts[index].image.endsWith('mp4') ||
+                posts[index].image.endsWith('mov') ||
+                posts[index].image.endsWith('webm')
+            ) {
+                index = prevIndex
             }
 
             await message.edit({
