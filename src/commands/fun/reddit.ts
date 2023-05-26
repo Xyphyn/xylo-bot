@@ -77,7 +77,7 @@ export default {
             return
         }
 
-        if (!res) {
+        if (!res || res.data.children.length == 0) {
             await interaction.editReply({
                 embeds: [errorEmbed(`That subreddit doesn't exist.`)],
             })
@@ -89,12 +89,22 @@ export default {
 
         let index = 0
 
-        while (
-            posts[index].stickied ||
-            posts[index].over_18 ||
-            posts[index].is_video
-        ) {
-            index++
+        try {
+            while (
+                posts[index].stickied ||
+                posts[index].over_18 ||
+                posts[index].is_video
+            ) {
+                index++
+            }
+        } catch (error) {
+            await message.edit({
+                embeds: [
+                    errorEmbed(
+                        'All of the posts on that sub are blocked by our filter.'
+                    ),
+                ],
+            })
         }
 
         const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
