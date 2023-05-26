@@ -145,6 +145,7 @@ export default {
         name: 'rolepicker',
         description: 'Role picker commands',
         options: subcommands.map((sc) => sc.metadata),
+        dmPermission: false,
     },
 
     permission: PermissionsBitField.Flags.Administrator,

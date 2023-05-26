@@ -41,6 +41,7 @@ export default {
                 description: 'The emoji for the role.',
             },
         ],
+        dmPermission: false,
     },
 
     async execute({ interaction, client }) {

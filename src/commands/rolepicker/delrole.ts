@@ -24,6 +24,7 @@ export default {
                 required: true,
             },
         ],
+        dmPermission: false,
     },
 
     async execute({ interaction, client }) {

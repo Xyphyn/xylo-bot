@@ -13,6 +13,7 @@ export default {
         name: 'mod',
         description: 'Commands related to moderation',
         options: subcommands.map((sc) => sc.metadata),
+        dmPermission: false,
     },
 
     permission: PermissionsBitField.Flags.ModerateMembers,

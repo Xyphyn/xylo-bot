@@ -8,9 +8,11 @@ import {
     ButtonInteraction,
     ButtonStyle,
     EmbedBuilder,
+    GuildMember,
 } from 'discord.js'
 import { mute } from './mute.js'
 import { deleteWarning } from '@commands/moderation/delwarn.js'
+import { errorEmbed } from 'util/embed.js'
 
 export default {
     metadata: {
@@ -38,19 +40,32 @@ export default {
                 name: 'silent',
             },
         ],
+        dmPermission: false,
     },
 
     async execute({ interaction }) {
         if (!interaction.guild) return
 
         const silent = interaction.options.getBoolean('silent') || false
-        const user = interaction.options.getUser('user')!
+        const user = interaction.options.getMember('user')! as GuildMember
         const reason =
             interaction.options.getString('reason') || 'No reason provided.'
 
         const message = await interaction.deferReply({
             ephemeral: silent,
         })
+
+        if (!user.moderatable) {
+            await interaction.editReply({
+                embeds: [
+                    errorEmbed(
+                        "That user can't be moderated. Do they have a higher permission than the bot?"
+                    ),
+                ],
+            })
+
+            return false
+        }
 
         const warning = await db.warning.create({
             data: {
@@ -89,6 +104,19 @@ export default {
             components: [actionRow],
         })
 
+        try {
+            await user.send({
+                embeds: [
+                    embed.setFooter({
+                        text: interaction.guild.name,
+                        iconURL: interaction.guild.iconURL() || '',
+                    }),
+                ],
+            })
+        } catch (error) {
+            // user probably has DMs disabled, no problem
+        }
+
         const warnings = await db.warning.findMany({
             where: {
                 guild_id: interaction.guild.id,
@@ -114,14 +142,18 @@ export default {
                 })
             }
 
-            await user.send({
-                embeds: [
-                    embed.setFooter({
-                        text: interaction.guild.name,
-                        iconURL: interaction.guild.iconURL() || '',
-                    }),
-                ],
-            })
+            try {
+                await user.send({
+                    embeds: [
+                        embed.setFooter({
+                            text: interaction.guild.name,
+                            iconURL: interaction.guild.iconURL() || '',
+                        }),
+                    ],
+                })
+            } catch (error) {
+                // same deal
+            }
         }
 
         message

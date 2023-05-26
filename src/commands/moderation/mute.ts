@@ -6,6 +6,7 @@ import {
     GuildMember,
 } from 'discord.js'
 import ms from 'ms'
+import { errorEmbed } from 'util/embed.js'
 
 export async function mute(
     member: GuildMember,
@@ -73,6 +74,7 @@ export default {
                 name: 'silent',
             },
         ],
+        dmPermission: false,
     },
 
     async execute({ interaction }) {
@@ -94,19 +96,35 @@ export default {
             user,
         })
 
+        if (!member.moderatable) {
+            await interaction.editReply({
+                embeds: [
+                    errorEmbed(
+                        "That user can't be moderated. Do they have a higher permission than the bot?"
+                    ),
+                ],
+            })
+
+            return false
+        }
+
         const embed = await mute(member, timeoutMs, reason)
 
         await interaction.editReply({
             embeds: [embed],
         })
 
-        await user.send({
-            embeds: [
-                embed.setFooter({
-                    text: interaction.guild.name,
-                    iconURL: interaction.guild.iconURL() || '',
-                }),
-            ],
-        })
+        try {
+            await user.send({
+                embeds: [
+                    embed.setFooter({
+                        text: interaction.guild.name,
+                        iconURL: interaction.guild.iconURL() || '',
+                    }),
+                ],
+            })
+        } catch (error) {
+            // user has DMs disabled
+        }
     },
 } as SlashSubcommand

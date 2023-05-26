@@ -6,6 +6,7 @@ import {
     GuildMember,
     Interaction,
     PermissionsBitField,
+    SlashCommandBuilder,
 } from 'discord.js'
 import ora from 'ora'
 import { commands, registerCommands } from '@commands/command.js'

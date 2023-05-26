@@ -1,6 +1,10 @@
 import { SlashSubcommand } from '@commands/command.js'
 import { BotEmoji, Color } from '@config/config.js'
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
+import {
+    ApplicationCommandOptionType,
+    EmbedBuilder,
+    GuildMember,
+} from 'discord.js'
 
 export default {
     metadata: {
@@ -22,17 +26,14 @@ export default {
                 name: 'silent',
             },
         ],
+        dmPermission: false,
     },
 
     async execute({ interaction }) {
         if (!interaction.guild) return false
 
-        const user = interaction.options.getUser('user')!
+        const member = interaction.options.getMember('user')! as GuildMember
         const silent = interaction.options.getBoolean('silent') || false
-
-        const member = await interaction.guild.members.fetch({
-            user,
-        })
 
         await interaction.deferReply({
             ephemeral: silent,

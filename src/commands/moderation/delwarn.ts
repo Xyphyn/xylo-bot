@@ -44,6 +44,7 @@ export default {
                 name: 'silent',
             },
         ],
+        dmPermission: false,
     },
 
     async execute({ interaction }) {
