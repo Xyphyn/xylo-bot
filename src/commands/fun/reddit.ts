@@ -56,11 +56,22 @@ export default {
                 description: 'The subreddit to view.',
                 required: true,
             },
+            {
+                type: ApplicationCommandOptionType.Boolean,
+                name: 'private',
+                description:
+                    'Should it only be visible to you? (Default: False)',
+                required: false,
+            },
         ],
     },
 
     async execute({ interaction }) {
-        const message = await (await interaction.deferReply()).fetch()
+        const silent = interaction.options.getBoolean('private') || false
+
+        const message = await (
+            await interaction.deferReply({ ephemeral: silent })
+        ).fetch()
         const subreddit = interaction.options.getString('subreddit')!
 
         let res: { data: { children: RedditPostChild[] } }
@@ -77,7 +88,7 @@ export default {
             return
         }
 
-        if (!res || res.data.children.length == 0) {
+        if (!res || !res.data || res.data.children.length == 0) {
             await interaction.editReply({
                 embeds: [errorEmbed(`That subreddit doesn't exist.`)],
             })
@@ -98,13 +109,15 @@ export default {
                 index++
             }
         } catch (error) {
-            await message.edit({
+            await interaction.editReply({
                 embeds: [
                     errorEmbed(
                         'All of the posts on that sub are blocked by our filter.'
                     ),
                 ],
             })
+
+            return
         }
 
         const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
@@ -127,6 +140,7 @@ export default {
             componentType: ComponentType.Button,
             dispose: true,
             idle: 60 * 1000,
+            time: silent ? 14 * 60 * 100 : undefined,
             filter: (i) => i.user.id == interaction.user.id,
         })
 
@@ -165,17 +179,30 @@ export default {
                 actionRow.components[1].setDisabled(false)
             }
 
-            await message.edit({
-                embeds: [postEmbed(posts[index])],
-                components: [actionRow],
-            })
+            if (!silent) {
+                await message.edit({
+                    embeds: [postEmbed(posts[index])],
+                    components: [actionRow],
+                })
+            } else {
+                await interaction.editReply({
+                    embeds: [postEmbed(posts[index])],
+                    components: [actionRow],
+                })
+            }
         })
 
         collector.on('end', async () => {
             actionRow.components.forEach((c) => c.setDisabled(true))
-            await message.edit({
-                components: [actionRow],
-            })
+            if (!silent) {
+                await message.edit({
+                    components: [actionRow],
+                })
+            } else {
+                await interaction.editReply({
+                    components: [actionRow],
+                })
+            }
         })
     },
 } as SlashSubcommand
