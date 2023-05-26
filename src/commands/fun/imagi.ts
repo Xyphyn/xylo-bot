@@ -55,7 +55,7 @@ function postEmbed(post: ImagiPost<ImagiPostExpand>) {
                 'users',
                 post.expand.user.id,
                 post.expand.user.avatar
-            )}&thumb=48x48`,
+            )}?thumb=48x48`,
         })
         .setTitle(post.description)
         .setURL(`https://imagi.xylight.dev/post/${post.id}`)
