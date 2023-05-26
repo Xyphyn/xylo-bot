@@ -77,8 +77,7 @@ export default {
         const message = await (await interaction.deferReply()).fetch()
 
         const posts: ImagiPost<ImagiPostExpand>[] = await fetch(
-            `${baseURL}/api/collections/posts/records?expand=user,postCounts(post)&sort=-created\
-            &fields=description,image,expand.user.avatar,expand.user.username,expand.postCounts(post).likes,expand.postCounts(post).comments,id`
+            `${baseURL}/api/collections/posts/records?expand=user,postCounts(post)&sort=-created`
         )
             .then((res) => res.json())
             .then((json) => json.items)
