@@ -1,7 +1,8 @@
 import { SlashCommand } from '@commands/command.js'
 import imagi from '@commands/fun/imagi.js'
+import reddit from '@commands/fun/reddit.js'
 
-const subcommands = [imagi]
+const subcommands = [imagi, reddit]
 
 export default {
     metadata: {

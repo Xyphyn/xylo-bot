@@ -64,7 +64,26 @@ client.on('interactionCreate', async (interaction) => {
         if (!command) return
 
         try {
-            await command.execute({ interaction, client })
+            await command.execute({ interaction, client }).catch((err) => {
+                console.error(err)
+
+                const errorEmbed = new EmbedBuilder()
+                    .setTitle('Error')
+                    .setColor(Color.error)
+                    .setDescription(
+                        `${BotEmoji.error} There was an error executing the command.`
+                    )
+                    .addFields([
+                        {
+                            name: 'Message',
+                            value: `\`${err}\``,
+                        },
+                    ])
+
+                interaction.channel?.send({
+                    embeds: [errorEmbed],
+                })
+            })
         } catch (err) {
             console.error(err)
 
@@ -90,4 +109,12 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('error', (err) => {
     console.error(err)
+})
+
+process.on('unhandledRejection', (err) => {
+    console.log(err)
+})
+
+process.on('uncaughtException', (err) => {
+    console.log(err)
 })
