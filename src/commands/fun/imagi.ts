@@ -50,12 +50,12 @@ function postEmbed(post: ImagiPost<ImagiPostExpand>) {
     return new EmbedBuilder()
         .setAuthor({
             name: post.expand.user.username,
-            iconURL: getImage(
+            iconURL: `${getImage(
                 baseURL,
                 'users',
                 post.expand.user.id,
                 post.expand.user.avatar
-            ),
+            )}&thumb=48x48`,
         })
         .setTitle(post.description)
         .setURL(`https://imagi.xylight.dev/post/${post.id}`)
