@@ -44,8 +44,8 @@ export default {
             .setTitle(`Warnings`)
             .setColor(Color.primary)
             .setAuthor({
-                name: interaction.user.username,
-                iconURL: interaction.user.avatarURL() ?? '',
+                name: user.username,
+                iconURL: user.avatarURL() ?? '',
             })
             .setDescription(
                 results

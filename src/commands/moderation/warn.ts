@@ -161,6 +161,7 @@ export default {
                 dispose: true,
                 interactionResponse: message,
                 time: 30 * 1000,
+                filter: (int) => int.user.id == interaction.user.id,
             })
             .then(async (int) => {
                 await int.deferReply({ ephemeral: silent })
@@ -183,6 +184,18 @@ export default {
                     ],
                 })
             })
-            .catch()
+            .catch(async (err) => {
+                await interaction.editReply({
+                    components: [
+                        new ActionRowBuilder<ButtonBuilder>().setComponents(
+                            new ButtonBuilder()
+                                .setStyle(ButtonStyle.Danger)
+                                .setLabel('Delete')
+                                .setCustomId('disabled')
+                                .setDisabled(true)
+                        ),
+                    ],
+                })
+            })
     },
 } as SlashSubcommand
