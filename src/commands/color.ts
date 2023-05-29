@@ -1,5 +1,4 @@
 import { SlashCommand } from '@commands/command.js'
-import { createCanvas } from 'canvas'
 import {
     ApplicationCommandOptionType,
     Attachment,
@@ -83,20 +82,8 @@ export default {
             return false
         }
 
-        const canvas = createCanvas(50, 50)
-        const ctx = canvas.getContext('2d')
-
         const rgb = hexToRgb(color)
         const hsv = hexToHsv(color)
-
-        ctx.fillStyle = `${color.startsWith('#') ? color : `#${color}`}`
-        ctx.fillRect(0, 0, 50, 50)
-
-        const url = canvas.toDataURL().split(';base64,')[1]
-
-        const buffer = Buffer.from(url, 'base64')
-
-        const attachment = new AttachmentBuilder(buffer).setName('img.png')
 
         const embed = new EmbedBuilder()
             .addFields([
@@ -119,11 +106,9 @@ export default {
                 },
             ])
             .setColor(hexToNumber(color))
-            .setImage('attachment://img.png')
 
         await interaction.reply({
             embeds: [embed],
-            files: [attachment],
         })
     },
 } as SlashCommand
