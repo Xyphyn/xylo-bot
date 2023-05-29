@@ -64,7 +64,7 @@ export default {
                     new EmbedBuilder()
                         .setTitle('Error')
                         .setDescription(
-                            `${BotEmoji.error} Translation is not configured in this instance.`
+                            `${BotEmoji.error} Translation is not configured in this bot.`
                         )
                         .setColor(Color.error),
                 ],
