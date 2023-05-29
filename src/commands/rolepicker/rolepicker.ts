@@ -2,6 +2,7 @@ import { SlashCommand } from '@commands/command.js'
 import addrole from '@commands/rolepicker/addrole.js'
 import create from '@commands/rolepicker/create.js'
 import delrole from '@commands/rolepicker/delrole.js'
+import edit from '@commands/rolepicker/edit.js'
 import { db } from 'app.js'
 import {
     ActionRowBuilder,
@@ -138,7 +139,7 @@ export async function refreshRolepicker(
     }
 }
 
-const subcommands = [create, addrole, delrole]
+const subcommands = [create, addrole, delrole, edit]
 
 export default {
     metadata: {

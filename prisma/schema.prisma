@@ -30,6 +30,7 @@ model RoleSelector {
   guild_id   String
   channel_id String
   message_id String
+  unique     Boolean
   values     RoleSelectorValues[]
 }
 
