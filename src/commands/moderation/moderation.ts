@@ -9,6 +9,7 @@ import unmute from '@commands/moderation/unmute.js'
 const subcommands = [warnings, warn, mute, delwarn, unmute]
 
 export default {
+    cooldown: 1000,
     metadata: {
         name: 'mod',
         description: 'Commands related to moderation',

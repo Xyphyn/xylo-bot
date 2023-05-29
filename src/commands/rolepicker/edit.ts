@@ -1,4 +1,5 @@
 import { SlashSubcommand } from '@commands/command.js'
+import { refreshRolepicker } from '@commands/rolepicker/rolepicker.js'
 import { Color } from '@config/config.js'
 import { db } from 'app.js'
 import {
@@ -54,7 +55,18 @@ export default {
                 .setRequired(true)
         )
 
-        modal.setComponents(row1, row2)
+        const row3 = new ActionRowBuilder<TextInputBuilder>().setComponents(
+            new TextInputBuilder()
+                .setLabel('Unique')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder(`1 role at max (true/false) (default: false)`)
+                .setCustomId(`unique`)
+                .setMaxLength(5)
+                .setMinLength(4)
+                .setRequired(false)
+        )
+
+        modal.setComponents(row1, row2, row3)
 
         await interaction.showModal(modal)
 
@@ -75,6 +87,10 @@ export default {
 
         const title = modalSubmit.fields.getTextInputValue('title')!
         const description = modalSubmit.fields.getTextInputValue('description')!
+        const uniqueText =
+            modalSubmit.fields.getTextInputValue('unique') || 'false'
+
+        let unique = uniqueText.toLowerCase() == 'true' ? true : false
 
         const rolepicker = await db.roleSelector.findFirst({
             where: {
@@ -122,8 +138,42 @@ export default {
             return
         }
 
-        await modalSubmit.editReply({
-            embeds: [successEmbed(`Successfully updated that role picker.`)],
+        const newRolePicker = await db.roleSelector.update({
+            where: {
+                id: rolepicker.id,
+            },
+            data: {
+                unique: unique,
+            },
         })
+
+        try {
+            await refreshRolepicker(
+                newRolePicker.message_id,
+                newRolePicker.channel_id,
+                client
+            )
+
+            await modalSubmit.editReply({
+                embeds: [
+                    successEmbed(`Successfully updated that role picker.`),
+                ],
+            })
+        } catch (error) {
+            await modalSubmit.editReply({
+                embeds: [
+                    errorEmbed(`Failed to update that role picker.`)
+                        .addFields([
+                            {
+                                name: 'Message',
+                                value: `${error}`,
+                            },
+                        ])
+                        .setFooter({
+                            text: `Please inform an admin about this.`,
+                        }),
+                ],
+            })
+        }
     },
 } as SlashSubcommand

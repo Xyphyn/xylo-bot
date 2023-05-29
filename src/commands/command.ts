@@ -5,6 +5,7 @@ import {
     ChatInputApplicationCommandData,
     ChatInputCommandInteraction,
     Client,
+    Collection,
     REST,
     Routes,
 } from 'discord.js'
@@ -17,8 +18,9 @@ import fun from '@commands/fun/fun.js'
 
 export interface SlashCommand {
     metadata: ChatInputApplicationCommandData
-
     permission?: bigint
+    // The cooldown (in millis)
+    cooldown?: number
 
     execute: ({
         interaction,
@@ -45,6 +47,8 @@ export interface SlashSubcommand {
         client: Client
     }) => Promise<boolean | void>
 }
+
+export const cooldowns = new Map<string, Map<string, number>>()
 
 const commandList = [ping, moderation, translate, color, rolepicker, fun]
 

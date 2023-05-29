@@ -9,12 +9,13 @@ import {
     SlashCommandBuilder,
 } from 'discord.js'
 import ora from 'ora'
-import { commands, registerCommands } from '@commands/command.js'
+import { commands, cooldowns, registerCommands } from '@commands/command.js'
 import { config as dotenv } from 'dotenv'
 import chalk from 'chalk'
 import { BotEmoji, Color } from '@config/config.js'
 import { PrismaClient } from '@prisma/client'
 import interactionHandler from 'events/interaction.js'
+import { errorEmbed } from 'util/embed.js'
 
 // starting stuff
 dotenv()
@@ -40,6 +41,35 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction instanceof ChatInputCommandInteraction) {
         const command = commands.get(interaction.commandName)
 
+        if (!command) return
+        if (!cooldowns.has(command.metadata.name)) {
+            cooldowns.set(command.metadata.name, new Map())
+        }
+
+        const now = Date.now()
+        const timestamps = cooldowns.get(command.metadata.name)!
+        const cooldown = command.cooldown ?? 300
+
+        if (timestamps.has(interaction.user.id)) {
+            if (now < timestamps.get(interaction.user.id)!) {
+                interaction.reply({
+                    embeds: [
+                        errorEmbed(
+                            `You are on cooldown for that command. You can use it again <t:${Math.floor(
+                                timestamps.get(interaction.user.id)! / 1000
+                            )}:R>.`
+                        ),
+                    ],
+
+                    ephemeral: true,
+                })
+
+                return
+            }
+        }
+
+        timestamps.set(interaction.user.id, now + cooldown)
+
         if (interaction.memberPermissions) {
             if (
                 !interaction.memberPermissions.has(
@@ -62,30 +92,7 @@ client.on('interactionCreate', async (interaction) => {
             }
         }
 
-        if (!command) return
-
-        try {
-            await command.execute({ interaction, client }).catch((err) => {
-                console.error(err)
-
-                const errorEmbed = new EmbedBuilder()
-                    .setTitle('Error')
-                    .setColor(Color.error)
-                    .setDescription(
-                        `${BotEmoji.error} There was an error executing the command.`
-                    )
-                    .addFields([
-                        {
-                            name: 'Message',
-                            value: `\`${err}\``,
-                        },
-                    ])
-
-                interaction.channel?.send({
-                    embeds: [errorEmbed],
-                })
-            })
-        } catch (err) {
+        command.execute({ interaction, client }).catch((err) => {
             console.error(err)
 
             const errorEmbed = new EmbedBuilder()
@@ -97,14 +104,23 @@ client.on('interactionCreate', async (interaction) => {
                 .addFields([
                     {
                         name: 'Message',
-                        value: `\`${err}\``,
+                        value: `\`\`\`${err}\`\`\``,
                     },
                 ])
 
-            interaction.channel?.send({
-                embeds: [errorEmbed],
-            })
-        }
+            if (interaction.isRepliable()) {
+                interaction.editReply({
+                    embeds: [errorEmbed],
+                })
+            }
+
+            if (!interaction.isRepliable()) {
+                // @ts-ignore
+                interaction.channel?.send({
+                    embeds: [errorEmbed],
+                })
+            }
+        })
     }
 })
 

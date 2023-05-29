@@ -125,6 +125,10 @@ export async function refreshRolepicker(
                 })
             )
 
+        if (rolePicker.unique) {
+            selectMenu.setMaxValues(1)
+        }
+
         await message.edit({
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
@@ -142,6 +146,7 @@ export async function refreshRolepicker(
 const subcommands = [create, addrole, delrole, edit]
 
 export default {
+    cooldown: 3000,
     metadata: {
         name: 'rolepicker',
         description: 'Role picker commands',

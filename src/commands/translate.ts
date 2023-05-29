@@ -8,7 +8,7 @@ import { Translator, TargetLanguageCode } from 'deepl-node'
 import { BotEmoji, Color } from '@config/config.js'
 
 enum Languages {
-    English = 'en',
+    English = 'en-GB',
     German = 'de',
     French = 'fr',
     Spanish = 'es',
@@ -30,6 +30,7 @@ function keyFromValue(object: any, value: any) {
 }
 
 export default {
+    cooldown: 5000,
     metadata: {
         name: 'translate',
         description: 'Translates text between languages.',
@@ -97,10 +98,10 @@ export default {
                 },
             ])
             .setFooter({
-                text: `${keyFromValue(
-                    Languages,
-                    response.detectedSourceLang
-                )} to ${keyFromValue(Languages, language)}`,
+                text: `${
+                    keyFromValue(Languages, response.detectedSourceLang) ??
+                    'Unknown'
+                } to ${keyFromValue(Languages, language)}`,
             })
 
         await interaction.editReply({
