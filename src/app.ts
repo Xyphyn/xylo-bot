@@ -1,4 +1,5 @@
 import {
+    ActivityType,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
@@ -39,6 +40,15 @@ await client.login(process.env.DISCORD_TOKEN)
 export const db = new PrismaClient()
 
 spinner.succeed(`${chalk.green(`Started in ${Date.now() - startTime}ms`)}`)
+
+client.user?.setActivity(
+    `${client.guilds.cache.size} guild${
+        client.guilds.cache.size > 1 ? 's' : ''
+    }`,
+    {
+        type: ActivityType.Watching,
+    }
+)
 
 client.on('interactionCreate', async (interaction) => {
     interactionHandler.execute({ interaction })
@@ -113,18 +123,9 @@ client.on('interactionCreate', async (interaction) => {
                     },
                 ])
 
-            if (interaction.isRepliable()) {
-                interaction.editReply({
-                    embeds: [errorEmbed],
-                })
-            }
-
-            if (!interaction.isRepliable()) {
-                // @ts-ignore
-                interaction.channel?.send({
-                    embeds: [errorEmbed],
-                })
-            }
+            interaction.channel?.send({
+                embeds: [errorEmbed],
+            })
         })
     }
 })
