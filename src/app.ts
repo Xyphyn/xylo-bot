@@ -27,7 +27,12 @@ const spinner = ora({
     color: 'blue',
 }).start()
 
-export const client = new Client({ intents: [GatewayIntentBits.Guilds] })
+export const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessageReactions,
+    ],
+})
 
 await registerCommands()
 await client.login(process.env.DISCORD_TOKEN)
