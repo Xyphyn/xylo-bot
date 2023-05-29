@@ -77,7 +77,18 @@ export default {
                 .setRequired(true)
         )
 
-        modal.setComponents(row1, row2)
+        const row3 = new ActionRowBuilder<TextInputBuilder>().setComponents(
+            new TextInputBuilder()
+                .setLabel('Unique')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder(`1 role at max (true/false) (default: false)`)
+                .setCustomId(`unique`)
+                .setMaxLength(5)
+                .setMinLength(4)
+                .setRequired(false)
+        )
+
+        modal.setComponents(row1, row2, row3)
 
         await buttonInt.showModal(modal)
 
@@ -98,6 +109,10 @@ export default {
 
         const title = modalSubmit.fields.getTextInputValue('title')!
         const description = modalSubmit.fields.getTextInputValue('description')!
+        const uniqueText =
+            modalSubmit.fields.getTextInputValue('unique') || 'false'
+
+        let unique = uniqueText.toLowerCase() == 'true' ? true : false
 
         const message = await reply.fetch()
 
@@ -106,7 +121,7 @@ export default {
                 guild_id: interaction.guildId,
                 channel_id: interaction.channelId,
                 message_id: message.id,
-                unique: false,
+                unique: unique,
             },
         })
 
