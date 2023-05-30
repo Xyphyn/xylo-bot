@@ -2,12 +2,17 @@ version: '3'
 services:
   db:
     image: mariadb
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: xylo_bot
       MYSQL_ROOT_PASSWORD: mariadb
-    ports:
-      - "3306:3306"
+    expose:
+      - "3306"
     volumes:
       - mariadb_data:/var/lib/mysql/data
   app:
