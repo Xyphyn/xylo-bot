@@ -112,9 +112,11 @@ export default {
             await interaction.editReply({
                 embeds: [successEmbed(`The role was successfully added.`)],
             })
-        } catch (error) {
+        } catch (error: any) {
             await interaction.editReply({
-                embeds: [errorEmbed(`There was an error adding that role.`)],
+                embeds: [
+                    errorEmbed(`There was an error adding that role.`, error),
+                ],
             })
         }
     },
