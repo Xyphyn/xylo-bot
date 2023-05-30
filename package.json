@@ -9,7 +9,7 @@
         "dev": "tsc && tsc-alias && node dist/app.js",
         "build": "tsc && tsc-alias",
         "start": "node dist/app.js",
-        "start:migrate": "prisma db push && npm run start"
+        "start:migrate": "prisma migrate deploy && npm run start"
     },
     "keywords": [],
     "author": "",
