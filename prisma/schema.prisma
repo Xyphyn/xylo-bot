@@ -15,7 +15,7 @@ model Warning {
   user_id  String
   guild_id String
   reason   String
-  time     DateTime
+  time     DateTime @default(now())
 }
 
 model GuildConfig {
@@ -28,8 +28,10 @@ model RoleSelector {
   guild_id   String
   channel_id String
   message_id String
-  unique     Boolean
+  unique     Boolean              @default(false)
   values     RoleSelectorValues[]
+
+  @@index([message_id])
 }
 
 model RoleSelectorValues {
