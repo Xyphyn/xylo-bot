@@ -44,14 +44,15 @@ export default {
             components: [setupButton],
         })
 
-        const buttonInt = await reply.awaitMessageComponent({
-            time: 60 * 1000,
-            dispose: true,
-            filter: (int) => int.user == interaction.user,
-        })
-
-        // const title = interaction.options.getString('title')!
-        // const description = interaction.options.getString('description')!
+        try {
+            var buttonInt = await reply.awaitMessageComponent({
+                time: 60 * 1000,
+                dispose: true,
+                filter: (int) => int.user == interaction.user,
+            })
+        } catch (error) {
+            return
+        }
 
         const modal = new ModalBuilder()
             .setCustomId(`xylo:rolepicker:create:modal`)
