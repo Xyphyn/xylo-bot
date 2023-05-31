@@ -130,14 +130,62 @@ client.on('interactionCreate', async (interaction) => {
     }
 })
 
+const exceptionEmbed = (err: Error) =>
+    new EmbedBuilder({
+        title: 'Error',
+        description: 'An unhandled exception was caught.',
+        fields: [
+            {
+                name: 'Message',
+                value: `\`\`\`${err}\`\`\``,
+            },
+            {
+                name: 'Stacktrace',
+                value: `\`\`\`${err.stack}\`\`\``,
+            },
+        ],
+        timestamp: new Date(),
+        color: Color.error,
+    })
+
 client.on('error', (err) => {
     console.error(err)
+
+    if (process.env.LOG_CHANNEL) {
+        const channel = client.channels
+            .fetch(process.env.LOG_CHANNEL)
+            .then((channel) => {
+                if (channel?.isTextBased()) {
+                    channel.send({ embeds: [exceptionEmbed(err)] })
+                }
+            })
+    }
 })
 
-process.on('unhandledRejection', (err) => {
+process.on('unhandledRejection', (err: any) => {
     console.log(err)
+
+    if (process.env.LOG_CHANNEL) {
+        const channel = client.channels
+            .fetch(process.env.LOG_CHANNEL)
+            .then((channel) => {
+                if (channel?.isTextBased()) {
+                    channel.send({ embeds: [exceptionEmbed(err)] })
+                }
+            })
+    }
 })
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', (err: any) => {
     console.log(err)
+
+    if (process.env.LOG_CHANNEL) {
+        const channel = client.channels
+            .fetch(process.env.LOG_CHANNEL)
+            .then((channel) => {
+                if (channel?.isTextBased()) {
+                    channel.send({ embeds: [exceptionEmbed(err)] })
+                }
+            })
+    }
 })
