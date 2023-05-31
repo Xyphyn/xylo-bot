@@ -28,6 +28,7 @@ enum Languages {
     Swedish = 'sv',
     Danish = 'da',
     Finnish = 'fi',
+    Latvian = 'lv',
 }
 
 enum LanguageEmojis {
@@ -45,6 +46,7 @@ enum LanguageEmojis {
     'sv' = '🇸🇪',
     'da' = '🇩🇰',
     'fi' = '🇫🇮',
+    'lv' = '🇱🇻',
 }
 
 function keyFromValue(object: any, value: any) {
