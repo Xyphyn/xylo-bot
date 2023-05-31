@@ -139,10 +139,6 @@ const exceptionEmbed = (err: Error) =>
                 name: 'Message',
                 value: `\`\`\`${err}\`\`\``,
             },
-            {
-                name: 'Stacktrace',
-                value: `\`\`\`${err.stack}\`\`\``,
-            },
         ],
         timestamp: new Date(),
         color: Color.error,
