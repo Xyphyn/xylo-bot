@@ -24,7 +24,7 @@ services:
       MARIADB_URL: mysql://root:mariadb@db:3306/xylo_bot
     restart: unless-stopped
     env_file: .env
-    tmpfs: "/tmp"
+    read_only: true
     
 volumes:
   mariadb_data:
