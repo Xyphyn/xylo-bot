@@ -61,7 +61,9 @@ export default {
         })
 
         const collector = message.createMessageComponentCollector({
-            time: 5 * 60 * 1000,
+            time: 14 * 60 * 1000,
+            idle: 5 * 60 * 1000,
+            dispose: true,
             filter: (int: Interaction) =>
                 (int as ButtonInteraction).message.id != id,
         })
@@ -78,7 +80,7 @@ export default {
                     inline: true,
                 },
                 {
-                    name: 'Database',
+                    name: 'MariaDB',
                     value: `${redisPing}ms`,
                     inline: true,
                 },

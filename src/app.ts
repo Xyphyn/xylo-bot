@@ -185,3 +185,9 @@ process.on('uncaughtException', (err: any) => {
             })
     }
 })
+
+process.on('SIGINT', (signal) => {
+    console.log('\nGracefully shutting down...')
+    client.destroy()
+    process.exit(0)
+})

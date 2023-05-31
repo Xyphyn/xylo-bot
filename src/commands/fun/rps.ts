@@ -36,33 +36,35 @@ export default {
     },
 
     async execute({ interaction }) {
-	const gameButtons = new ActionRowBuilder<ButtonBuilder>().setComponents(
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:rock',
-        label: 'Rock',
-        style: ButtonStyle.Primary,
-    }).setEmoji('🪨'),
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:paper',
-        label: 'Paper',
-        style: ButtonStyle.Primary,
-    }).setEmoji('📜'),
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:scissors',
-        label: 'Scissors',
-        style: ButtonStyle.Primary,
-    }).setEmoji('✂️')
-)
+        const gameButtons = new ActionRowBuilder<ButtonBuilder>().setComponents(
+            new ButtonBuilder({
+                customId: 'xylo:fun:rps:rock',
+                label: 'Rock',
+                style: ButtonStyle.Secondary,
+                emoji: '🪨',
+            }),
+            new ButtonBuilder({
+                customId: 'xylo:fun:rps:paper',
+                label: 'Paper',
+                style: ButtonStyle.Secondary,
+                emoji: '📜',
+            }),
+            new ButtonBuilder({
+                customId: 'xylo:fun:rps:scissors',
+                label: 'Scissors',
+                style: ButtonStyle.Secondary,
+                emoji: '✂️',
+            })
+        )
 
-const rematch = new ActionRowBuilder<ButtonBuilder>().setComponents(
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:rematch',
-        label: 'Rematch',
-        style: ButtonStyle.Secondary,
-    })
-)
+        const rematch = new ActionRowBuilder<ButtonBuilder>().setComponents(
+            new ButtonBuilder({
+                customId: 'xylo:fun:rps:rematch',
+                label: 'Rematch',
+                style: ButtonStyle.Secondary,
+            })
+        )
 
-	
         let embed = new EmbedBuilder({
             title: 'Rock paper scissors',
             description: 'Choose one wisely...',
@@ -72,11 +74,28 @@ const rematch = new ActionRowBuilder<ButtonBuilder>().setComponents(
         const reply = await interaction.deferReply()
 
         let row = gameButtons
-
         let playing = true
+
+        let playerScore = 0
+        let opponentScore = 0
 
         while (playing) {
             row = gameButtons
+
+            if (!(playerScore == 0 && opponentScore == 0)) {
+                embed.setFields(
+                    {
+                        name: 'You',
+                        value: `${playerScore}`,
+                        inline: true,
+                    },
+                    {
+                        name: 'Opponent',
+                        value: `${opponentScore}`,
+                        inline: true,
+                    }
+                )
+            }
 
             await interaction.editReply({
                 embeds: [embed],
@@ -120,8 +139,10 @@ const rematch = new ActionRowBuilder<ButtonBuilder>().setComponents(
 
             if (beats(choice, opponentChoice)) {
                 resultsEmbed.setTitle('**You win! :partying_face:**')
+                playerScore += 1
             } else if (beats(opponentChoice, choice)) {
                 resultsEmbed.setTitle('**You lose :confused:**')
+                opponentScore += 1
             } else {
                 resultsEmbed.setTitle("**It's a tie! :no_mouth:**")
             }
