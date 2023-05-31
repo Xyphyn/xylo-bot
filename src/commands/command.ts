@@ -1,11 +1,9 @@
 import {
     ApplicationCommandOptionData,
     ApplicationCommandOptionType,
-    ApplicationCommandSubCommandData,
     ChatInputApplicationCommandData,
     ChatInputCommandInteraction,
     Client,
-    Collection,
     REST,
     Routes,
 } from 'discord.js'

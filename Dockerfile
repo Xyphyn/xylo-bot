@@ -1,15 +1,13 @@
-FROM node:20.2-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
 COPY package.json .
-COPY yarn.lock .
-
 
 # npm completely dies here for some reason, so I'm using yarn.
-RUN yarn install
+RUN npm install
 
 COPY . .
 
-RUN yarn build
-CMD yarn start:migrate
+RUN npm run build:generate
+CMD npm run start:migrate

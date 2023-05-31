@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ES2022",
+        "target": "ES2017",
         "module": "ES2022",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
@@ -10,8 +10,10 @@
             "@commands/*": ["commands/*"],
             "@config/*": ["config/*"]
         },
+        "resolveJsonModule": true,
         "strict": true,
-        // "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+        /* Docker build complains about this for some reason. Not sure why. */
+        "noImplicitAny": false /* Enable error reporting for expressions and declarations with an implied 'any' type. */,
         // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
         // "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
         // "strictBindCallApply": true,                      /* Check that the arguments for 'bind', 'call', and 'apply' methods match the original function. */
