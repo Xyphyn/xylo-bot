@@ -49,7 +49,7 @@ export default {
                     inline: true,
                 },
                 {
-                    name: 'Database',
+                    name: 'MariaDB',
                     value: `${redisPing}ms`,
                     inline: true,
                 },
