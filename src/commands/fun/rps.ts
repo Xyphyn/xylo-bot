@@ -8,32 +8,6 @@ import {
     EmbedBuilder,
 } from 'discord.js'
 
-const gameButtons = new ActionRowBuilder<ButtonBuilder>().setComponents(
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:rock',
-        label: 'Rock',
-        style: ButtonStyle.Primary,
-    }).setEmoji('🪨'),
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:paper',
-        label: 'Paper',
-        style: ButtonStyle.Primary,
-    }).setEmoji('📜'),
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:scissors',
-        label: 'Scissors',
-        style: ButtonStyle.Primary,
-    }).setEmoji('✂️')
-)
-
-const rematch = new ActionRowBuilder<ButtonBuilder>().setComponents(
-    new ButtonBuilder({
-        customId: 'xylo:fun:rps:rematch',
-        label: 'Rematch',
-        style: ButtonStyle.Secondary,
-    })
-)
-
 type RPSChoice = 'rock' | 'paper' | 'scissors'
 
 function getRandomChoice(): RPSChoice {
@@ -62,6 +36,33 @@ export default {
     },
 
     async execute({ interaction }) {
+	const gameButtons = new ActionRowBuilder<ButtonBuilder>().setComponents(
+    new ButtonBuilder({
+        customId: 'xylo:fun:rps:rock',
+        label: 'Rock',
+        style: ButtonStyle.Primary,
+    }).setEmoji('🪨'),
+    new ButtonBuilder({
+        customId: 'xylo:fun:rps:paper',
+        label: 'Paper',
+        style: ButtonStyle.Primary,
+    }).setEmoji('📜'),
+    new ButtonBuilder({
+        customId: 'xylo:fun:rps:scissors',
+        label: 'Scissors',
+        style: ButtonStyle.Primary,
+    }).setEmoji('✂️')
+)
+
+const rematch = new ActionRowBuilder<ButtonBuilder>().setComponents(
+    new ButtonBuilder({
+        customId: 'xylo:fun:rps:rematch',
+        label: 'Rematch',
+        style: ButtonStyle.Secondary,
+    })
+)
+
+	
         let embed = new EmbedBuilder({
             title: 'Rock paper scissors',
             description: 'Choose one wisely...',
