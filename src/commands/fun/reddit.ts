@@ -9,6 +9,7 @@ import {
     ComponentType,
     EmbedBuilder,
 } from 'discord.js'
+import { asDisabled } from 'util/component.js'
 import { errorEmbed } from 'util/embed.js'
 
 interface RedditPostChild {
@@ -193,14 +194,13 @@ export default {
         })
 
         collector.on('end', async () => {
-            actionRow.components.forEach((c) => c.setDisabled(true))
             if (!silent) {
                 await message.edit({
-                    components: [actionRow],
+                    components: [asDisabled(actionRow)],
                 })
             } else {
                 await interaction.editReply({
-                    components: [actionRow],
+                    components: [asDisabled(actionRow)],
                 })
             }
         })

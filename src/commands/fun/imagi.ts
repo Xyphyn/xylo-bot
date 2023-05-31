@@ -9,6 +9,7 @@ import {
     ComponentType,
     EmbedBuilder,
 } from 'discord.js'
+import { asDisabled } from 'util/component.js'
 
 const baseURL = 'https://backend.xylight.dev'
 
@@ -159,9 +160,8 @@ export default {
         })
 
         collector.on('end', async () => {
-            actionRow.components.forEach((c) => c.setDisabled(true))
             await message.edit({
-                components: [actionRow],
+                components: [asDisabled(actionRow)],
             })
         })
     },

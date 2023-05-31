@@ -13,6 +13,7 @@ import {
 import { mute } from './mute.js'
 import { deleteWarning } from '@commands/moderation/delwarn.js'
 import { errorEmbed } from 'util/embed.js'
+import { asDisabled } from 'util/component.js'
 
 export default {
     metadata: {
@@ -156,46 +157,31 @@ export default {
             }
         }
 
-        message
+        const int = await message
             .awaitMessageComponent({
                 dispose: true,
                 interactionResponse: message,
                 time: 30 * 1000,
                 filter: (int) => int.user.id == interaction.user.id,
             })
-            .then(async (int) => {
-                await int.deferReply({ ephemeral: silent })
+            .catch(async (err) => {})
 
-                const embed = await deleteWarning(warning.id, warning.guild_id)
-
-                await int.editReply({
-                    embeds: [embed],
-                })
-
-                await interaction.editReply({
-                    components: [
-                        new ActionRowBuilder<ButtonBuilder>().setComponents(
-                            new ButtonBuilder()
-                                .setStyle(ButtonStyle.Danger)
-                                .setLabel('Delete')
-                                .setCustomId('disabled')
-                                .setDisabled(true)
-                        ),
-                    ],
-                })
+        if (!int) {
+            await interaction.editReply({
+                components: [asDisabled(actionRow)],
             })
-            .catch(async (err) => {
-                await interaction.editReply({
-                    components: [
-                        new ActionRowBuilder<ButtonBuilder>().setComponents(
-                            new ButtonBuilder()
-                                .setStyle(ButtonStyle.Danger)
-                                .setLabel('Delete')
-                                .setCustomId('disabled')
-                                .setDisabled(true)
-                        ),
-                    ],
-                })
-            })
+
+            return
+        }
+
+        await int.deferReply({ ephemeral: silent })
+
+        await int.editReply({
+            embeds: [await deleteWarning(warning.id, warning.guild_id)],
+        })
+
+        await interaction.editReply({
+            components: [asDisabled(actionRow)],
+        })
     },
 } as SlashSubcommand

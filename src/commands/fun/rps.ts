@@ -7,6 +7,7 @@ import {
     ButtonStyle,
     EmbedBuilder,
 } from 'discord.js'
+import { asDisabled } from 'util/component.js'
 
 type RPSChoice = 'rock' | 'paper' | 'scissors'
 
@@ -172,11 +173,7 @@ export default {
         }
 
         await interaction.editReply({
-            components: [
-                row.setComponents(
-                    row.components.map((c) => c.setDisabled(true))
-                ),
-            ],
+            components: [asDisabled(row)],
         })
     },
 } as SlashSubcommand
