@@ -10,7 +10,12 @@ import {
     SlashCommandBuilder,
 } from 'discord.js'
 import ora from 'ora'
-import { commands, cooldowns, registerCommands } from '@commands/command.js'
+import {
+    SlashCommandAutocomplete,
+    commands,
+    cooldowns,
+    registerCommands,
+} from '@commands/command.js'
 import { config as dotenv } from 'dotenv'
 import chalk from 'chalk'
 import { BotEmoji, Color } from '@config/config.js'
@@ -53,7 +58,7 @@ client.user?.setActivity(
 client.on('interactionCreate', async (interaction) => {
     interactionHandler.execute({ interaction })
 
-    if (interaction instanceof ChatInputCommandInteraction) {
+    if (interaction.isChatInputCommand()) {
         const command = commands.get(interaction.commandName)
 
         if (!command) return
@@ -127,6 +132,14 @@ client.on('interactionCreate', async (interaction) => {
                 embeds: [errorEmbed],
             })
         })
+    } else if (interaction.isAutocomplete()) {
+        const command = commands.get(interaction.commandName) as
+            | SlashCommandAutocomplete
+            | undefined
+
+        if (!command) return
+
+        command.autocomplete(interaction)
     }
 })
 

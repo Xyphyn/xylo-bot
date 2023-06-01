@@ -1,6 +1,7 @@
 import {
     ApplicationCommandOptionData,
     ApplicationCommandOptionType,
+    AutocompleteInteraction,
     ChatInputApplicationCommandData,
     ChatInputCommandInteraction,
     Client,
@@ -45,6 +46,12 @@ export interface SlashSubcommand {
         interaction: ChatInputCommandInteraction
         client: Client
     }) => Promise<boolean | void>
+}
+
+export interface SlashCommandAutocomplete {
+    autocomplete: (
+        interaction: AutocompleteInteraction
+    ) => Promise<boolean | void>
 }
 
 export const cooldowns = new Map<string, Map<string, number>>()

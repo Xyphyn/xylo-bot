@@ -1,4 +1,4 @@
-import { SlashSubcommand } from '@commands/command.js'
+import { SlashCommandAutocomplete, SlashSubcommand } from '@commands/command.js'
 import { Color } from '@config/config.js'
 import {
     ActionRowBuilder,
@@ -25,8 +25,9 @@ export default {
             {
                 type: ApplicationCommandOptionType.String,
                 name: 'tag',
-                description: 'The tag (e.g. loaf, trump, etc)',
+                description: 'The tag (e.g. loaf, cute, etc)',
                 maxLength: 128,
+                autocomplete: true,
             },
         ],
     },
@@ -56,13 +57,15 @@ export default {
 
         while (interacting) {
             const response: { url: string } = await fetch(serviceURL).then(
-                (res) => res.json()
+                (res) => res.json().catch((_) => {})
             )
 
-            if (!response.url) {
+            if (!response || !response.url) {
                 await interaction.editReply({
                     embeds: [
-                        errorEmbed(`There are no cat images with that tag.`),
+                        errorEmbed(
+                            `Invalid arguments. Make sure to use alphanumeric characters.`
+                        ),
                     ],
                     components: [],
                 })
@@ -101,4 +104,4 @@ export default {
             components: [asDisabled(refresh)],
         })
     },
-} as SlashSubcommand
+} as SlashSubcommand & SlashCommandAutocomplete

@@ -1,10 +1,14 @@
-import { SlashCommand } from '@commands/command.js'
+import { SlashCommand, SlashCommandAutocomplete } from '@commands/command.js'
 import cat from '@commands/fun/cat.js'
 import imagi from '@commands/fun/imagi.js'
 import reddit from '@commands/fun/reddit.js'
 import rps from '@commands/fun/rps.js'
 
 const subcommands = [imagi, reddit, rps, cat]
+
+const tags: string[] = await fetch('https://cataas.com/api/tags').then((res) =>
+    res.json()
+)
 
 export default {
     metadata: {
@@ -21,4 +25,19 @@ export default {
             )
             ?.execute(args)
     },
-} as SlashCommand
+
+    async autocomplete(interaction) {
+        const focusedValue = interaction.options.getFocused()
+        const filtered = tags.filter(
+            (tag) =>
+                tag.startsWith(focusedValue.toLowerCase()) &&
+                tag.length < 100 &&
+                tag.length >= 1
+        )
+        await interaction.respond(
+            filtered
+                .map((choice) => ({ name: choice, value: choice }))
+                .slice(0, 24)
+        )
+    },
+} as SlashCommand & SlashCommandAutocomplete
