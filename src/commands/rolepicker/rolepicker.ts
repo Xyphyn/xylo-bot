@@ -30,7 +30,7 @@ import {
 registerInteractionListener({
     filter: (interaction) =>
         interaction instanceof MessageComponentInteraction &&
-        (interaction.customId == `xylo:rolepicker` ||
+        (interaction.customId.startsWith(`xylo:rolepicker`) ||
             interaction.customId == `xylo:rolepicker:edit`),
     execute: async (interaction) => {
         if (interaction instanceof StringSelectMenuInteraction) {
@@ -144,7 +144,7 @@ async function handleSelection(interaction: StringSelectMenuInteraction) {
             ],
         })
 
-        return
+        return false
     }
 
     const member = await interaction.guild.members.fetch(interaction.user)

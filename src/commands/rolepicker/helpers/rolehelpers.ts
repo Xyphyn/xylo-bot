@@ -1,4 +1,9 @@
+/**
+ * I am sorry for whoever has to read this
+ */
+
 import { RoleSelector, RoleSelectorValues } from '.prisma/client'
+import { refreshRolepicker } from '@commands/rolepicker/rolepicker.js'
 import { Color } from '@config/config.js'
 import { db } from 'app.js'
 import {
@@ -9,10 +14,16 @@ import {
     ChatInputCommandInteraction,
     ComponentType,
     EmbedBuilder,
+    ModalBuilder,
+    RoleSelectMenuBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
+    TextInputBuilder,
+    TextInputStyle,
 } from 'discord.js'
 import { asDisabled } from 'util/component.js'
+import { errorEmbed, successEmbed } from 'util/embed.js'
+import { modalRows } from 'util/modal.js'
 
 export async function editRolePickerRole(
     rolepicker: RoleSelector & { values: RoleSelectorValues[] },
@@ -21,7 +32,7 @@ export async function editRolePickerRole(
     const selectMenu =
         new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
             roleSelector(rolepicker)
-                .setCustomId(`xylo:rolepicker:edit:items:edit:select`)
+                .setCustomId(`xylo:editrolepicker:edit:items:edit:select`)
                 .setMaxValues(1)
         )
 
@@ -51,10 +62,186 @@ export async function editRolePickerRole(
         })
     if (!selection) return
 
-    const selectItem = rolepicker.values.find(
+    const selectItemIndex = rolepicker.values.findIndex(
         (item) => item.role_id == selection.values[0]
     )
+    const selectItem = rolepicker.values[selectItemIndex]
     if (!selectItem) return
+
+    const modal = new ModalBuilder({
+        title: 'Edit role picker',
+        customId: `xylo:editrolepicker:edit:items:edit`,
+        components: modalRows(
+            new TextInputBuilder({
+                customId: `label`,
+                required: true,
+                maxLength: 128,
+                placeholder: `Epic role`,
+                style: TextInputStyle.Short,
+                label: 'Label',
+                value: selectItem.label,
+            }),
+            new TextInputBuilder({
+                customId: `description`,
+                required: false,
+                maxLength: 256,
+                placeholder: `A very cool role`,
+                style: TextInputStyle.Short,
+                label: 'Description',
+                value: selectItem.description ?? '',
+            }),
+            new TextInputBuilder({
+                customId: `emoji`,
+                required: false,
+                maxLength: 128,
+                placeholder: `:smiley:`,
+                style: TextInputStyle.Short,
+                label: 'Emoji',
+                value: selectItem.emoji ?? '',
+            })
+        ),
+    })
+
+    await selection.showModal(modal)
+
+    const modalSubmit = await interaction
+        .awaitModalSubmit({
+            dispose: true,
+            time: 3 * 60 * 1000,
+        })
+        .catch((_) => {})
+
+    if (!modalSubmit) return
+
+    await modalSubmit.deferReply({ ephemeral: true })
+
+    const label =
+        modalSubmit.fields.getTextInputValue('label') ?? selectItem.label
+    const description = modalSubmit.fields.getTextInputValue('description')
+    const emoji = modalSubmit.fields.getTextInputValue('emoji')
+
+    selectItem.label = label
+    selectItem.description = description
+
+    await db.roleSelectorValues.update({
+        where: {
+            id: selectItem.id,
+        },
+        data: selectItem,
+    })
+
+    await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
+
+    await modalSubmit.editReply({
+        embeds: [successEmbed(`Successfully updated that role picker.`)],
+    })
+}
+
+export async function addRolePickerRole(
+    rolepicker: RoleSelector & { values: RoleSelectorValues[] },
+    interaction: ButtonInteraction | ChatInputCommandInteraction
+) {
+    const selectMenu =
+        new ActionRowBuilder<RoleSelectMenuBuilder>().setComponents(
+            new RoleSelectMenuBuilder({
+                customId: `xylo:rolepicker:edit:items:add:select`,
+                maxValues: 1,
+                minValues: 1,
+            })
+        )
+
+    const reply = await interaction.editReply({
+        embeds: [
+            new EmbedBuilder({
+                title: 'Select role',
+                description: 'Select the role you want to add.',
+                color: Color.primary,
+            }),
+        ],
+        components: [selectMenu],
+    })
+
+    const selection = await reply.awaitMessageComponent({
+        filter: (int) =>
+            int.user == interaction.user && int.message.id == reply.id,
+        time: 30 * 1000,
+        dispose: true,
+        componentType: ComponentType.RoleSelect,
+    })
+
+    if (
+        rolepicker.values
+            .map((item) => item.role_id)
+            .includes(selection.values[0])
+    ) {
+        await interaction.editReply({
+            embeds: [errorEmbed(`That role is already in the role picker.`)],
+            components: [],
+        })
+    }
+    await interaction.editReply({
+        components: [asDisabled(selectMenu)],
+    })
+
+    if (!selection) return
+
+    const modal = new ModalBuilder({
+        title: 'Edit role picker',
+        customId: `xylo:editrolepicker:edit:items:edit`,
+        components: modalRows(
+            new TextInputBuilder({
+                customId: `label`,
+                required: true,
+                maxLength: 128,
+                placeholder: `Epic role`,
+                style: TextInputStyle.Short,
+                label: 'Label',
+            }),
+            new TextInputBuilder({
+                customId: `description`,
+                required: false,
+                maxLength: 256,
+                placeholder: `A very cool role`,
+                style: TextInputStyle.Short,
+                label: 'Description',
+            })
+        ),
+    })
+
+    await selection.showModal(modal)
+
+    const modalSubmit = await interaction
+        .awaitModalSubmit({
+            dispose: true,
+            time: 3 * 60 * 1000,
+        })
+        .catch((_) => {})
+
+    if (!modalSubmit) return
+
+    await modalSubmit.deferReply({ ephemeral: true })
+
+    const label = modalSubmit.fields.getTextInputValue('label')!
+    const description = modalSubmit.fields.getTextInputValue('description')
+
+    await db.roleSelectorValues.create({
+        data: {
+            role_id: selection.values[0],
+            label: label,
+            description: description,
+            RoleSelector: {
+                connect: {
+                    id: rolepicker.id,
+                },
+            },
+        },
+    })
+
+    await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
+
+    await modalSubmit.editReply({
+        embeds: [successEmbed(`Successfully updated that role picker.`)],
+    })
 }
 
 export async function editRolePickerRoles(
@@ -116,10 +303,22 @@ export async function editRolePickerRoles(
 
     collector.on('collect', async (int) => {
         if (int.customId == 'xylo:rolepicker:edit:items:edit') {
-            int.deferReply()
+            await int.deferReply({ ephemeral: true })
             editRolePickerRole(rolepicker, int)
         }
+        if (int.customId == 'xylo:rolepicker:edit:items:add') {
+            await int.deferReply({ ephemeral: true })
+            addRolePickerRole(rolepicker, int)
+        }
         if (int.customId == 'xylo:rolepicker:edit:items:delete') {
+            await int.deferReply({ ephemeral: true })
+            await int.editReply({
+                embeds: [
+                    errorEmbed(
+                        `Deleting roles via this menu isn't supported yet, use /rolepicker delrole`
+                    ),
+                ],
+            })
         }
     })
 
