@@ -30,7 +30,8 @@ import {
 registerInteractionListener({
     filter: (interaction) =>
         interaction instanceof MessageComponentInteraction &&
-        interaction.customId.startsWith(`xylo:rolepicker`),
+        (interaction.customId == `xylo:rolepicker` ||
+            interaction.customId == `xylo:rolepicker:edit`),
     execute: async (interaction) => {
         if (interaction instanceof StringSelectMenuInteraction) {
             handleSelection(interaction)
@@ -80,33 +81,37 @@ async function handleClick(interaction: ButtonInteraction) {
         })
     )
 
-    const reply = await interaction.reply({
-        ephemeral: true,
-        embeds: [
-            new EmbedBuilder({
-                color: Color.primary,
-                title: 'Edit role picker',
-                description:
-                    'What part of this role picker would you like to edit?',
-            }),
-        ],
-        components: [actions],
-    })
+    const reply = await interaction
+        .reply({
+            ephemeral: true,
+            embeds: [
+                new EmbedBuilder({
+                    color: Color.primary,
+                    title: 'Edit role picker',
+                    description:
+                        'What part of this role picker would you like to edit?',
+                }),
+            ],
+            components: [actions],
+        })
+        .then((reply) => reply.fetch())
 
     const collector = reply.createMessageComponentCollector({
         time: 14 * 60 * 1000,
         idle: 30 * 1000,
         dispose: true,
-        filter: (int) => int.user.id == interaction.user.id,
+        filter: async (int) =>
+            int.user.id == interaction.user.id && int.message.id == reply.id,
         componentType: ComponentType.Button,
     })
 
     collector.on('collect', async (int) => {
-        int.deferUpdate()
         if (int.customId == 'xylo:rolepicker:edit:rolepicker')
-            await editRolePicker(selector.id, interaction)
-        else if (int.customId == 'xylo:rolepicker:edit:items')
+            await editRolePicker(selector.id, int)
+        else if (int.customId == 'xylo:rolepicker:edit:items') {
+            int.deferUpdate()
             await editRolePickerRoles(selector.id, interaction)
+        }
     })
 
     collector.on('end', () => {

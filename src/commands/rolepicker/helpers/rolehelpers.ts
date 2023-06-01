@@ -15,6 +15,49 @@ import {
 import { asDisabled } from 'util/component.js'
 
 export async function editRolePickerRole(
+    rolepicker: RoleSelector & { values: RoleSelectorValues[] },
+    interaction: ButtonInteraction | ChatInputCommandInteraction
+) {
+    const selectMenu =
+        new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+            roleSelector(rolepicker)
+                .setCustomId(`xylo:rolepicker:edit:items:edit:select`)
+                .setMaxValues(1)
+        )
+
+    const reply = await interaction.editReply({
+        embeds: [
+            new EmbedBuilder({
+                title: 'Select role',
+                description: 'Select the role you want to edit.',
+                color: Color.primary,
+            }),
+        ],
+        components: [selectMenu],
+    })
+
+    const selection = await reply
+        .awaitMessageComponent({
+            filter: (int) =>
+                int.user == interaction.user && int.message.id == reply.id,
+            time: 30 * 1000,
+            dispose: true,
+            componentType: ComponentType.StringSelect,
+        })
+        .catch((_) => {
+            interaction.editReply({
+                components: [asDisabled(selectMenu)],
+            })
+        })
+    if (!selection) return
+
+    const selectItem = rolepicker.values.find(
+        (item) => item.role_id == selection.values[0]
+    )
+    if (!selectItem) return
+}
+
+export async function editRolePickerRoles(
     id: number,
     interaction: ButtonInteraction | ChatInputCommandInteraction
 ) {
@@ -29,42 +72,24 @@ export async function editRolePickerRole(
 
     if (!rolepicker) return
 
-    const selectMenu =
-        new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-            roleSelector(rolepicker)
-        )
-
-    await interaction.editReply({
-        embeds: [
-            new EmbedBuilder({
-                title: 'Select role',
-                description: 'Select the role you want to edit.',
-                color: Color.primary,
-            }),
-        ],
-        components: [selectMenu],
-    })
-}
-
-export async function editRolePickerRoles(
-    id: number,
-    interaction: ButtonInteraction | ChatInputCommandInteraction
-) {
     const actions = new ActionRowBuilder<ButtonBuilder>().setComponents(
         new ButtonBuilder({
             customId: 'xylo:rolepicker:edit:items:add',
             label: 'Add',
             style: ButtonStyle.Success,
+            disabled: rolepicker.values.length >= 25,
         }),
         new ButtonBuilder({
             customId: 'xylo:rolepicker:edit:items:edit',
             label: 'Edit',
             style: ButtonStyle.Primary,
+            disabled: rolepicker.values.length == 0,
         }),
         new ButtonBuilder({
             customId: 'xylo:rolepicker:edit:items:delete',
             label: 'Delete',
             style: ButtonStyle.Danger,
+            disabled: rolepicker.values.length == 0,
         })
     )
 
@@ -84,21 +109,26 @@ export async function editRolePickerRoles(
         time: 14 * 60 * 1000,
         idle: 30 * 1000,
         dispose: true,
-        filter: (int) => int.user.id == interaction.user.id,
+        filter: (int) =>
+            int.user.id == interaction.user.id && int.message.id == reply.id,
         componentType: ComponentType.Button,
     })
 
     collector.on('collect', async (int) => {
-        int.deferUpdate()
         if (int.customId == 'xylo:rolepicker:edit:items:edit') {
-            editRolePickerRole(id, interaction)
+            int.deferReply()
+            editRolePickerRole(rolepicker, int)
+        }
+        if (int.customId == 'xylo:rolepicker:edit:items:delete') {
         }
     })
 
     collector.on('end', () => {
-        interaction.editReply({
-            components: [asDisabled(actions)],
-        })
+        interaction
+            .editReply({
+                components: [asDisabled(actions)],
+            })
+            .catch((_) => {})
     })
 }
 
