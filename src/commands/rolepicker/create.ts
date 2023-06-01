@@ -136,7 +136,15 @@ export default {
 
         await interaction.editReply({
             embeds: [embed],
-            components: [],
+            components: [
+                new ActionRowBuilder<ButtonBuilder>().setComponents(
+                    new ButtonBuilder({
+                        custom_id: 'xylo:rolepicker:edit',
+                        label: 'Edit',
+                        style: ButtonStyle.Secondary,
+                    })
+                ),
+            ],
         })
 
         await modalSubmit.editReply({

@@ -11,7 +11,7 @@ export function errorEmbed(message: string, error?: Error) {
         embed
             .addFields({
                 name: 'Message',
-                value: `\`\`\`${error.message}\`\`\``,
+                value: `\`\`\`${error.name}\`\`\``,
             })
             .setFooter({ text: 'Please inform a server admin about this.' })
     }

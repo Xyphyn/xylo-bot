@@ -3,10 +3,16 @@ import addrole from '@commands/rolepicker/addrole.js'
 import create from '@commands/rolepicker/create.js'
 import delrole from '@commands/rolepicker/delrole.js'
 import edit from '@commands/rolepicker/edit.js'
-import { db } from 'app.js'
+import { editRolePicker } from '@commands/rolepicker/helpers/edithelpers.js'
+import { ButtonBuilder, ComponentType } from 'discord.js'
+import { client, db } from 'app.js'
 import {
     ActionRowBuilder,
+    ButtonInteraction,
+    ButtonStyle,
     Client,
+    EmbedBuilder,
+    MessageComponentInteraction,
     PermissionsBitField,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
@@ -14,17 +20,84 @@ import {
 } from 'discord.js'
 import { registerInteractionListener } from 'events/interaction.js'
 import { errorEmbed, successEmbed } from 'util/embed.js'
+import { Color } from '@config/config.js'
+import { asDisabled } from 'util/component.js'
+import { editRolePickerRoles } from '@commands/rolepicker/helpers/rolehelpers.js'
 
 registerInteractionListener({
     filter: (interaction) =>
-        interaction instanceof StringSelectMenuInteraction &&
+        interaction instanceof MessageComponentInteraction &&
         interaction.customId.startsWith(`xylo:rolepicker`),
     execute: async (interaction) => {
         if (interaction instanceof StringSelectMenuInteraction) {
             handleSelection(interaction)
+        } else if (interaction instanceof ButtonInteraction) {
+            handleClick(interaction)
         }
     },
 })
+
+async function handleClick(interaction: ButtonInteraction) {
+    if (!interaction.guild) return
+
+    const selector = await db.roleSelector.findFirst({
+        where: {
+            message_id: interaction.message.id,
+        },
+        include: {
+            values: true,
+        },
+    })
+
+    if (!selector) return
+
+    const actions = new ActionRowBuilder<ButtonBuilder>().setComponents(
+        new ButtonBuilder({
+            custom_id: 'xylo:rolepicker:edit:rolepicker',
+            label: 'Embed',
+            style: ButtonStyle.Secondary,
+        }),
+        new ButtonBuilder({
+            custom_id: 'xylo:rolepicker:edit:items',
+            label: 'Roles',
+            style: ButtonStyle.Secondary,
+        })
+    )
+
+    const reply = await interaction.reply({
+        ephemeral: true,
+        embeds: [
+            new EmbedBuilder({
+                color: Color.primary,
+                title: 'Edit role picker',
+                description:
+                    'What part of this role picker would you like to edit?',
+            }),
+        ],
+        components: [actions],
+    })
+
+    const collector = reply.createMessageComponentCollector({
+        time: 14 * 60 * 1000,
+        idle: 30 * 1000,
+        dispose: true,
+        filter: (int) => int.user.id == interaction.user.id,
+        componentType: ComponentType.Button,
+    })
+
+    collector.on('collect', async (int) => {
+        if (int.customId == 'xylo:rolepicker:edit:rolepicker')
+            await editRolePicker(selector.id, int)
+        else if (int.customId == 'xylo:rolepicker:edit:items')
+            await editRolePickerRoles(selector.id, int)
+    })
+
+    collector.on('end', () => {
+        interaction.editReply({
+            components: [asDisabled(actions)],
+        })
+    })
+}
 
 async function handleSelection(interaction: StringSelectMenuInteraction) {
     if (!interaction.guild) return
@@ -84,7 +157,7 @@ async function handleSelection(interaction: StringSelectMenuInteraction) {
 export async function refreshRolepicker(
     messageId: string,
     channelId: string,
-    client: Client
+    _client?: Client
 ) {
     const channel = await client.channels.fetch(channelId)
 
@@ -133,6 +206,13 @@ export async function refreshRolepicker(
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
                     selectMenu
+                ),
+                new ActionRowBuilder<ButtonBuilder>().setComponents(
+                    new ButtonBuilder({
+                        custom_id: 'xylo:rolepicker:edit',
+                        style: ButtonStyle.Secondary,
+                        label: 'Edit',
+                    })
                 ),
             ],
         })
