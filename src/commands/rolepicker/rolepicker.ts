@@ -4,7 +4,7 @@ import create from '@commands/rolepicker/create.js'
 import delrole from '@commands/rolepicker/delrole.js'
 import edit from '@commands/rolepicker/edit.js'
 import { editRolePicker } from '@commands/rolepicker/helpers/edithelpers.js'
-import { ButtonBuilder, ComponentType } from 'discord.js'
+import { ButtonBuilder, ComponentType, GuildMember } from 'discord.js'
 import { client, db } from 'app.js'
 import {
     ActionRowBuilder,
@@ -22,7 +22,10 @@ import { registerInteractionListener } from 'events/interaction.js'
 import { errorEmbed, successEmbed } from 'util/embed.js'
 import { Color } from '@config/config.js'
 import { asDisabled } from 'util/component.js'
-import { editRolePickerRoles } from '@commands/rolepicker/helpers/rolehelpers.js'
+import {
+    editRolePickerRoles,
+    roleSelector,
+} from '@commands/rolepicker/helpers/rolehelpers.js'
 
 registerInteractionListener({
     filter: (interaction) =>
@@ -39,6 +42,19 @@ registerInteractionListener({
 
 async function handleClick(interaction: ButtonInteraction) {
     if (!interaction.guild) return
+
+    if (
+        !(interaction.member! as GuildMember).permissions.has(
+            PermissionsBitField.Flags.Administrator
+        )
+    ) {
+        await interaction.reply({
+            embeds: [errorEmbed(`You don't have permission to use that.`)],
+            ephemeral: true,
+        })
+
+        return
+    }
 
     const selector = await db.roleSelector.findFirst({
         where: {
@@ -86,10 +102,11 @@ async function handleClick(interaction: ButtonInteraction) {
     })
 
     collector.on('collect', async (int) => {
+        int.deferUpdate()
         if (int.customId == 'xylo:rolepicker:edit:rolepicker')
-            await editRolePicker(selector.id, int)
+            await editRolePicker(selector.id, interaction)
         else if (int.customId == 'xylo:rolepicker:edit:items')
-            await editRolePickerRoles(selector.id, int)
+            await editRolePickerRoles(selector.id, interaction)
     })
 
     collector.on('end', () => {
@@ -178,34 +195,12 @@ export async function refreshRolepicker(
     if (!rolePicker) return
 
     if (rolePicker.values.length >= 1) {
-        const selectMenu = new StringSelectMenuBuilder()
-            .setCustomId(`xylo:rolepicker:${rolePicker.id}`)
-            .setPlaceholder(`Select your roles`)
-            .setMaxValues(rolePicker.values.length)
-            .setMinValues(0)
-            .setOptions(
-                rolePicker.values.map((value) => {
-                    const option = new StringSelectMenuOptionBuilder()
-                        .setLabel(value.label)
-                        .setValue(value.role_id)
-
-                    if (value.description)
-                        option.setDescription(value.description)
-
-                    if (value.emoji) option.setEmoji(value.emoji)
-
-                    return option
-                })
-            )
-
-        if (rolePicker.unique) {
-            selectMenu.setMaxValues(1)
-        }
+        const menu = roleSelector(rolePicker)
 
         await message.edit({
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-                    selectMenu
+                    menu
                 ),
                 new ActionRowBuilder<ButtonBuilder>().setComponents(
                     new ButtonBuilder({

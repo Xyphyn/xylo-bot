@@ -46,6 +46,7 @@ export async function editRolePicker(
             customId: 'unique',
             maxLength: 5,
             minLength: 4,
+            required: false,
         }),
     ]
 
