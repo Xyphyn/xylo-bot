@@ -1,8 +1,5 @@
 import { SlashCommand } from '@commands/command.js'
-import addrole from '@commands/rolepicker/addrole.js'
 import create from '@commands/rolepicker/create.js'
-import delrole from '@commands/rolepicker/delrole.js'
-import edit from '@commands/rolepicker/edit.js'
 import { editRolePicker } from '@commands/rolepicker/helpers/edithelpers.js'
 import { ButtonBuilder, ComponentType, GuildMember } from 'discord.js'
 import { client, db } from 'app.js'
@@ -230,7 +227,7 @@ export async function refreshRolepicker(
     }
 }
 
-const subcommands = [create, addrole, delrole, edit]
+const subcommands = [create]
 
 export default {
     cooldown: 3000,

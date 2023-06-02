@@ -153,6 +153,64 @@ export async function editRolePickerRole(
     })
 }
 
+export async function deleteRolePickerRole(
+    rolepicker: RoleSelector & { values: RoleSelectorValues[] },
+    interaction: ButtonInteraction | ChatInputCommandInteraction
+) {
+    const selectMenu =
+        new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
+            roleSelector(rolepicker)
+                .setCustomId(`xylo:editrolepicker:edit:items:delete:select`)
+                .setMaxValues(1)
+        )
+
+    const reply = await interaction.editReply({
+        embeds: [
+            new EmbedBuilder({
+                title: 'Select role',
+                description: 'Select the role you want to delete.',
+                color: Color.primary,
+            }),
+        ],
+        components: [selectMenu],
+    })
+
+    const selection = await reply
+        .awaitMessageComponent({
+            filter: (int) =>
+                int.user == interaction.user && int.message.id == reply.id,
+            time: 30 * 1000,
+            dispose: true,
+            componentType: ComponentType.StringSelect,
+        })
+        .catch((_) => {
+            interaction.editReply({
+                components: [asDisabled(selectMenu)],
+            })
+        })
+    if (!selection) return
+
+    await selection.deferUpdate()
+
+    const selectItem = rolepicker.values.find(
+        (item) => item.role_id == selection.values[0]
+    )
+    if (!selectItem) return
+
+    await db.roleSelectorValues.delete({
+        where: {
+            id: selectItem.id,
+        },
+    })
+
+    await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
+
+    await interaction.editReply({
+        embeds: [successEmbed(`Successfully updated that role picker.`)],
+        components: [],
+    })
+}
+
 export async function addRolePickerRole(
     rolepicker: RoleSelector & { values: RoleSelectorValues[] },
     interaction: ButtonInteraction | ChatInputCommandInteraction
@@ -352,13 +410,7 @@ export async function editRolePickerRoles(
         }
         if (int.customId == 'xylo:rolepicker:edit:items:delete') {
             await int.deferReply({ ephemeral: true })
-            await int.editReply({
-                embeds: [
-                    errorEmbed(
-                        `Deleting roles via this menu isn't supported yet, use /rolepicker delrole`
-                    ),
-                ],
-            })
+            deleteRolePickerRole(rolepicker, int)
         }
     })
 
