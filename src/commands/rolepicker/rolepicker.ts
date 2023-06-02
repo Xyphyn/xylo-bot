@@ -151,28 +151,30 @@ async function handleSelection(interaction: StringSelectMenuInteraction) {
         return false
     }
 
-    const member = await interaction.guild.members.fetch(interaction.user)
+    const member = interaction.member as GuildMember
 
-    for (const value of selector.values) {
-        try {
-            if (interaction.values.includes(value.role_id.toString())) {
-                await member.roles.add(value.role_id)
-            } else {
-                await member.roles.remove(value.role_id)
-            }
-        } catch (error) {
-            await interaction.editReply({
-                embeds: [
-                    errorEmbed(
-                        `Attempted to give you the selected roles, but failed.\
-                        Make sure that the bot's role is **higher** than the\
-                        role you are trying to grant, on the role list.`
-                    ),
-                ],
+    try {
+        await Promise.all(
+            selector.values.map((value) => {
+                if (interaction.values.includes(value.role_id.toString())) {
+                    return member.roles.add(value.role_id)
+                } else {
+                    return member.roles.remove(value.role_id)
+                }
             })
+        )
+    } catch (error) {
+        await interaction.editReply({
+            embeds: [
+                errorEmbed(
+                    `Attempted to give you the selected roles, but failed.\
+                    Make sure that the bot's role is **higher** than the\
+                    role you are trying to grant, on the role list.`
+                ),
+            ],
+        })
 
-            return
-        }
+        return
     }
 
     await interaction.editReply({
