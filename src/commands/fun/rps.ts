@@ -153,7 +153,7 @@ export default {
                 if (playerChoice && opponentChoice) break
 
                 if (opponent) {
-                    await interaction.editReply({
+                    interaction.editReply({
                         embeds: [
                             new EmbedBuilder({
                                 title: 'Rock paper scissors',
