@@ -106,6 +106,7 @@ client.on('interactionCreate', async (interaction) => {
 
                 await interaction.reply({
                     embeds: [errorEmbed],
+		    ephemeral: true
                 })
 
                 return
