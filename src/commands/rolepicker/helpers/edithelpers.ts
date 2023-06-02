@@ -1,4 +1,7 @@
-import { refreshRolepicker } from '@commands/rolepicker/rolepicker.js'
+import {
+    refreshRolepicker,
+    rolePickerEmbed,
+} from '@commands/rolepicker/rolepicker.js'
 import { Color } from '@config/config.js'
 import { client, db } from 'app.js'
 import {
@@ -108,15 +111,7 @@ export async function editRolePicker(
         const message = await channel!.messages.fetch(rolepicker.message_id)
 
         await message.edit({
-            embeds: [
-                new EmbedBuilder()
-                    .setTitle(title)
-                    .setDescription(description)
-                    .setColor(Color.primary)
-                    .setFooter({
-                        text: `Selector ID: ${rolepicker.id} | Use /rolepicker addrole to add a role.`,
-                    }),
-            ],
+            embeds: [rolePickerEmbed(title, description)],
         })
     } catch (error) {
         await modalSubmit.editReply({

@@ -1,4 +1,5 @@
 import { SlashSubcommand } from '@commands/command.js'
+import { rolePickerEmbed } from '@commands/rolepicker/rolepicker.js'
 import { Color } from '@config/config.js'
 import { db } from 'app.js'
 import {
@@ -126,16 +127,8 @@ export default {
             },
         })
 
-        const embed = new EmbedBuilder()
-            .setTitle(title)
-            .setDescription(description)
-            .setColor(Color.primary)
-            .setFooter({
-                text: `Selector ID: ${selector.id} | Use /rolepicker addrole to add a role.`,
-            })
-
         await interaction.editReply({
-            embeds: [embed],
+            embeds: [rolePickerEmbed(title, description)],
             components: [
                 new ActionRowBuilder<ButtonBuilder>().setComponents(
                     new ButtonBuilder({

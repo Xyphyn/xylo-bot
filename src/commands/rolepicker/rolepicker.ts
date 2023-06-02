@@ -41,6 +41,13 @@ registerInteractionListener({
     },
 })
 
+export const rolePickerEmbed = (title: string, description: string) =>
+    new EmbedBuilder({
+        title: title,
+        description: description,
+        color: Color.primary,
+    })
+
 async function handleClick(interaction: ButtonInteraction) {
     if (!interaction.guild) return
 

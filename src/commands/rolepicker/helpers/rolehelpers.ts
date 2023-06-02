@@ -24,6 +24,7 @@ import {
 import { asDisabled } from 'util/component.js'
 import { errorEmbed, successEmbed } from 'util/embed.js'
 import { modalRows } from 'util/modal.js'
+import { isEmoji, getEmoji } from 'emoji-info'
 
 export async function editRolePickerRole(
     rolepicker: RoleSelector & { values: RoleSelectorValues[] },
@@ -113,15 +114,29 @@ export async function editRolePickerRole(
 
     if (!modalSubmit) return
 
-    await modalSubmit.deferReply({ ephemeral: true })
+    await modalSubmit.deferUpdate()
 
     const label =
         modalSubmit.fields.getTextInputValue('label') ?? selectItem.label
     const description = modalSubmit.fields.getTextInputValue('description')
-    const emoji = modalSubmit.fields.getTextInputValue('emoji')
+    let emoji = modalSubmit.fields.getTextInputValue('emoji')
+
+    if (emoji) {
+        if (isEmoji(emoji, true)) {
+            emoji = getEmoji(emoji)!.emoji
+        } else {
+            await interaction.editReply({
+                embeds: [errorEmbed(`The provided emoji is invalid.`)],
+                components: [],
+            })
+
+            return
+        }
+    }
 
     selectItem.label = label
     selectItem.description = description
+    selectItem.emoji = emoji
 
     await db.roleSelectorValues.update({
         where: {
@@ -132,8 +147,9 @@ export async function editRolePickerRole(
 
     await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
 
-    await modalSubmit.editReply({
+    await interaction.editReply({
         embeds: [successEmbed(`Successfully updated that role picker.`)],
+        components: [],
     })
 }
 
@@ -204,6 +220,14 @@ export async function addRolePickerRole(
                 placeholder: `A very cool role`,
                 style: TextInputStyle.Short,
                 label: 'Description',
+            }),
+            new TextInputBuilder({
+                customId: `emoji`,
+                required: false,
+                maxLength: 128,
+                placeholder: `:smiley:`,
+                style: TextInputStyle.Short,
+                label: 'Emoji',
             })
         ),
     })
@@ -219,16 +243,31 @@ export async function addRolePickerRole(
 
     if (!modalSubmit) return
 
-    await modalSubmit.deferReply({ ephemeral: true })
+    await modalSubmit.deferUpdate()
 
     const label = modalSubmit.fields.getTextInputValue('label')!
     const description = modalSubmit.fields.getTextInputValue('description')
+    let emoji = modalSubmit.fields.getTextInputValue('emoji')
+
+    if (emoji) {
+        if (isEmoji(emoji, true)) {
+            emoji = getEmoji(emoji)!.emoji
+        } else {
+            await interaction.editReply({
+                embeds: [errorEmbed(`The provided emoji is invalid.`)],
+                components: [],
+            })
+
+            return
+        }
+    }
 
     await db.roleSelectorValues.create({
         data: {
             role_id: selection.values[0],
             label: label,
             description: description,
+            emoji: emoji,
             RoleSelector: {
                 connect: {
                     id: rolepicker.id,
@@ -239,8 +278,9 @@ export async function addRolePickerRole(
 
     await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
 
-    await modalSubmit.editReply({
+    await interaction.editReply({
         embeds: [successEmbed(`Successfully updated that role picker.`)],
+        components: [],
     })
 }
 
