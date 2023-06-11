@@ -123,8 +123,12 @@ export default {
             .catch((error) => {
                 interaction.editReply({
                     embeds: [
-                        sendError(`Failed to create that role picker.`, error),
+                        sendError(
+                            `Failed to create that role picker. **Make sure that the bot has permission to send messages in this channel.**`,
+                            error
+                        ),
                     ],
+                    components: [],
                 })
 
                 return
