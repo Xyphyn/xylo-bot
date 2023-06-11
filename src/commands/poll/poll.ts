@@ -27,6 +27,8 @@ export default {
         dmPermission: false,
     },
 
+    botpermission: 'AddReactions',
+
     async execute({ interaction }) {
         const question = interaction.options.getString('question')!
 

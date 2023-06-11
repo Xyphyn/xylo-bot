@@ -5,6 +5,7 @@ import {
     ChatInputApplicationCommandData,
     ChatInputCommandInteraction,
     Client,
+    PermissionResolvable,
     REST,
     Routes,
 } from 'discord.js'
@@ -19,6 +20,7 @@ import poll from '@commands/poll/poll.js'
 export interface SlashCommand {
     metadata: ChatInputApplicationCommandData
     permission?: bigint
+    botpermission?: PermissionResolvable
     // The cooldown (in millis)
     cooldown?: number
 

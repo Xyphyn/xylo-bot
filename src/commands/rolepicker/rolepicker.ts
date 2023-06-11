@@ -240,6 +240,7 @@ export default {
         dmPermission: false,
     },
 
+    botpermission: 'ManageRoles',
     permission: PermissionsBitField.Flags.Administrator,
 
     async execute(args) {

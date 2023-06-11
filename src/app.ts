@@ -66,6 +66,23 @@ client.on('interactionCreate', async (interaction) => {
             cooldowns.set(command.metadata.name, new Map())
         }
 
+        if (command.botpermission) {
+            if (
+                !interaction.guild?.members.me?.permissions.has(
+                    command.botpermission
+                )
+            ) {
+                interaction.reply({
+                    ephemeral: true,
+                    embeds: [
+                        sendError(
+                            `I need the \`${command.botpermission.toString()}\` permission to run that.`
+                        ),
+                    ],
+                })
+            }
+        }
+
         const now = Date.now()
         const timestamps = cooldowns.get(command.metadata.name)!
         const cooldown = command.cooldown ?? 300

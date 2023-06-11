@@ -18,6 +18,7 @@ export default {
     },
 
     permission: PermissionsBitField.Flags.ModerateMembers,
+    botpermission: 'ModerateMembers',
 
     async execute(args) {
         subcommands
