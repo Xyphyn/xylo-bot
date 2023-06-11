@@ -7,7 +7,7 @@ import {
     ButtonStyle,
     EmbedBuilder,
 } from 'discord.js'
-import { asDisabled } from 'util/component.js'
+import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 import { sendError } from 'util/embed.js'
 
 export default {
@@ -33,13 +33,9 @@ export default {
     },
 
     async execute({ interaction }) {
-        const refresh = new ActionRowBuilder<ButtonBuilder>().setComponents(
-            new ButtonBuilder({
-                customId: 'xylo:fun:cat:refresh',
-                style: ButtonStyle.Primary,
-                label: 'Refresh',
-            })
-        )
+        const refresh = makeRow({
+            buttons: [{ label: 'Refresh', style: ButtonStyle.Primary }],
+        })
 
         let saying = interaction.options.getString('saying')
         if (saying) saying = encodeURIComponent(saying)
@@ -85,17 +81,15 @@ export default {
                 components: [refresh],
             })
 
-            const refreshInt = await reply
-                .awaitMessageComponent({
-                    dispose: true,
-                    filter: (int) => int.user.id == interaction.user.id,
-                    idle: 30 * 1000,
-                })
-                .catch((_) => {
-                    interacting = false
-                })
+            const refreshInt = await awaitInteraction({
+                message: reply,
+                user: interaction.user,
+            })
 
-            if (!interacting || !refreshInt) break
+            if (!refreshInt) {
+                interacting = false
+                break
+            }
 
             refreshInt.deferUpdate()
         }

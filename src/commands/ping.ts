@@ -10,6 +10,7 @@ import {
 import { SlashCommand } from '@commands/command'
 import { db } from 'app.js'
 import { Color } from '@config/config.js'
+import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 
 async function fetchPing(
     client: Client
@@ -28,67 +29,51 @@ export default {
     async execute({ interaction, client }) {
         const message = await interaction.deferReply()
 
-        const { discordPing, redisPing } = await fetchPing(client)
+        let refresh = true
 
-        const id = `xylo:ping:refresh:${interaction.id}`
-
-        const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
-            new ButtonBuilder()
-                .setCustomId(id)
-                .setLabel('Refresh')
-                .setStyle(ButtonStyle.Primary)
-        )
-
-        const embed = new EmbedBuilder()
-            .setColor(Color.primary)
-            .setTitle(`Ping`)
-            .addFields([
-                {
-                    name: 'Discord',
-                    value: `${discordPing}ms`,
-                    inline: true,
-                },
-                {
-                    name: 'MariaDB',
-                    value: `${redisPing}ms`,
-                    inline: true,
-                },
-            ])
-
-        await interaction.editReply({
-            embeds: [embed],
-            components: [actionRow],
+        const row = makeRow({
+            buttons: [{ label: 'Refresh', style: ButtonStyle.Primary }],
         })
 
-        const collector = message.createMessageComponentCollector({
-            time: 14 * 60 * 1000,
-            idle: 5 * 60 * 1000,
-            dispose: true,
-            filter: (int: Interaction) =>
-                (int as ButtonInteraction).message.id != id,
-        })
-
-        collector.on('collect', async (int: ButtonInteraction) => {
-            int.deferUpdate()
-
+        while (refresh) {
             const { discordPing, redisPing } = await fetchPing(client)
 
-            embed.setFields([
-                {
-                    name: 'Discord',
-                    value: `${discordPing}ms`,
-                    inline: true,
-                },
-                {
-                    name: 'MariaDB',
-                    value: `${redisPing}ms`,
-                    inline: true,
-                },
-            ])
+            const embed = new EmbedBuilder()
+                .setColor(Color.primary)
+                .setTitle(`Ping`)
+                .addFields([
+                    {
+                        name: 'Discord',
+                        value: `${discordPing}ms`,
+                        inline: true,
+                    },
+                    {
+                        name: 'MariaDB',
+                        value: `${redisPing}ms`,
+                        inline: true,
+                    },
+                ])
 
-            await interaction.editReply({
+            const reply = await interaction.editReply({
                 embeds: [embed],
+                components: [row],
             })
+
+            const int = await awaitInteraction({
+                message: reply,
+                user: interaction.user,
+            })
+
+            if (!int) {
+                refresh = false
+                break
+            }
+
+            int.deferReply()
+        }
+
+        await interaction.editReply({
+            components: [asDisabled(row)],
         })
     },
 } as SlashCommand
