@@ -12,7 +12,7 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js'
-import { successEmbed } from 'util/embed.js'
+import { sendSuccess } from 'util/embed.js'
 
 export default {
     metadata: {
@@ -142,7 +142,7 @@ export default {
 
         await modalSubmit.editReply({
             embeds: [
-                successEmbed(
+                sendSuccess(
                     `Successfully created the role picker of ID ${selector.id}`
                 ).addFields([
                     {

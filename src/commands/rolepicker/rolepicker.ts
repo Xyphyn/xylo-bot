@@ -16,7 +16,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js'
 import { registerInteractionListener } from 'events/interaction.js'
-import { errorEmbed, successEmbed } from 'util/embed.js'
+import { sendError, sendSuccess } from 'util/embed.js'
 import { Color } from '@config/config.js'
 import { asDisabled } from 'util/component.js'
 import {
@@ -54,7 +54,7 @@ async function handleClick(interaction: ButtonInteraction) {
         )
     ) {
         await interaction.reply({
-            embeds: [errorEmbed(`You don't have permission to use that.`)],
+            embeds: [sendError(`You don't have permission to use that.`)],
             ephemeral: true,
         })
 
@@ -142,7 +142,7 @@ async function handleSelection(interaction: StringSelectMenuInteraction) {
     if (!selector) {
         await interaction.editReply({
             embeds: [
-                errorEmbed(
+                sendError(
                     `That role picker isn't in the database. This is an error on our side.`
                 ),
             ],
@@ -166,7 +166,7 @@ async function handleSelection(interaction: StringSelectMenuInteraction) {
     } catch (error) {
         await interaction.editReply({
             embeds: [
-                errorEmbed(
+                sendError(
                     `Attempted to give you the selected roles, but failed.\
                     Make sure that the bot's role is **higher** than the\
                     role you are trying to grant, on the role list.`
@@ -178,7 +178,7 @@ async function handleSelection(interaction: StringSelectMenuInteraction) {
     }
 
     await interaction.editReply({
-        embeds: [successEmbed(`Successfully updated your roles.`)],
+        embeds: [sendSuccess(`Successfully updated your roles.`)],
     })
 }
 

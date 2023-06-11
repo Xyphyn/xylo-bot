@@ -1,7 +1,7 @@
 import { BotEmoji, Color } from '@config/config.js'
 import { EmbedBuilder } from 'discord.js'
 
-export function errorEmbed(message: string, error?: Error) {
+export function sendError(message: string, error?: Error) {
     const embed = new EmbedBuilder()
         .setTitle(`Error`)
         .setDescription(`${BotEmoji.error} ${message}`)
@@ -19,7 +19,7 @@ export function errorEmbed(message: string, error?: Error) {
     return embed
 }
 
-export const successEmbed = (message: string) =>
+export const sendSuccess = (message: string) =>
     new EmbedBuilder()
         .setTitle(`Success`)
         .setDescription(`${BotEmoji.success} ${message}`)

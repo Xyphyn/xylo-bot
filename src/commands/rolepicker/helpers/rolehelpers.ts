@@ -22,7 +22,7 @@ import {
     TextInputStyle,
 } from 'discord.js'
 import { asDisabled } from 'util/component.js'
-import { errorEmbed, successEmbed } from 'util/embed.js'
+import { sendError, sendSuccess } from 'util/embed.js'
 import { modalRows } from 'util/modal.js'
 import { isEmoji, getEmoji } from 'emoji-info'
 
@@ -126,7 +126,7 @@ export async function editRolePickerRole(
             emoji = getEmoji(emoji)!.emoji
         } else {
             await interaction.editReply({
-                embeds: [errorEmbed(`The provided emoji is invalid.`)],
+                embeds: [sendError(`The provided emoji is invalid.`)],
                 components: [],
             })
 
@@ -148,7 +148,7 @@ export async function editRolePickerRole(
     await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
 
     await interaction.editReply({
-        embeds: [successEmbed(`Successfully updated that role picker.`)],
+        embeds: [sendSuccess(`Successfully updated that role picker.`)],
         components: [],
     })
 }
@@ -206,7 +206,7 @@ export async function deleteRolePickerRole(
     await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
 
     await interaction.editReply({
-        embeds: [successEmbed(`Successfully updated that role picker.`)],
+        embeds: [sendSuccess(`Successfully updated that role picker.`)],
         components: [],
     })
 }
@@ -249,7 +249,7 @@ export async function addRolePickerRole(
             .includes(selection.values[0])
     ) {
         await interaction.editReply({
-            embeds: [errorEmbed(`That role is already in the role picker.`)],
+            embeds: [sendError(`That role is already in the role picker.`)],
             components: [],
         })
     }
@@ -312,7 +312,7 @@ export async function addRolePickerRole(
             emoji = getEmoji(emoji)!.emoji
         } else {
             await interaction.editReply({
-                embeds: [errorEmbed(`The provided emoji is invalid.`)],
+                embeds: [sendError(`The provided emoji is invalid.`)],
                 components: [],
             })
 
@@ -337,7 +337,7 @@ export async function addRolePickerRole(
     await refreshRolepicker(rolepicker.message_id, rolepicker.channel_id)
 
     await interaction.editReply({
-        embeds: [successEmbed(`Successfully updated that role picker.`)],
+        embeds: [sendSuccess(`Successfully updated that role picker.`)],
         components: [],
     })
 }

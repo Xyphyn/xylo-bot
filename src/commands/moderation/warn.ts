@@ -12,7 +12,7 @@ import {
 } from 'discord.js'
 import { mute } from './mute.js'
 import { deleteWarning } from '@commands/moderation/delwarn.js'
-import { errorEmbed } from 'util/embed.js'
+import { sendError } from 'util/embed.js'
 import { asDisabled } from 'util/component.js'
 
 export default {
@@ -59,7 +59,7 @@ export default {
         if (!user.moderatable) {
             await interaction.editReply({
                 embeds: [
-                    errorEmbed(
+                    sendError(
                         "That user can't be moderated. Do they have a higher permission than the bot?"
                     ),
                 ],

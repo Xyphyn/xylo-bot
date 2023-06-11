@@ -21,7 +21,7 @@ import chalk from 'chalk'
 import { BotEmoji, Color } from '@config/config.js'
 import { PrismaClient } from '@prisma/client'
 import interactionHandler from 'events/interaction.js'
-import { errorEmbed } from 'util/embed.js'
+import { sendError } from 'util/embed.js'
 
 // starting stuff
 dotenv()
@@ -74,7 +74,7 @@ client.on('interactionCreate', async (interaction) => {
             if (now < timestamps.get(interaction.user.id)!) {
                 interaction.reply({
                     embeds: [
-                        errorEmbed(
+                        sendError(
                             `You are on cooldown for that command. You can use it again <t:${Math.floor(
                                 timestamps.get(interaction.user.id)! / 1000
                             )}:R>.`
@@ -106,7 +106,7 @@ client.on('interactionCreate', async (interaction) => {
 
                 await interaction.reply({
                     embeds: [errorEmbed],
-		    ephemeral: true
+                    ephemeral: true,
                 })
 
                 return

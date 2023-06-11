@@ -5,7 +5,7 @@ import {
     AttachmentBuilder,
     EmbedBuilder,
 } from 'discord.js'
-import { errorEmbed } from 'util/embed.js'
+import { sendError } from 'util/embed.js'
 
 function hexToRgb(hex: string): [number, number, number] {
     const hexWithoutHash = hex.replace('#', '')
@@ -73,7 +73,7 @@ export default {
         if (Number.isNaN(test)) {
             await interaction.reply({
                 embeds: [
-                    errorEmbed(
+                    sendError(
                         `That is not a valid hex color. Use the format #000000`
                     ),
                 ],

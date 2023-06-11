@@ -10,7 +10,7 @@ import {
     EmbedBuilder,
 } from 'discord.js'
 import { asDisabled } from 'util/component.js'
-import { errorEmbed } from 'util/embed.js'
+import { sendError } from 'util/embed.js'
 
 interface RedditPostChild {
     data: RedditPost
@@ -83,7 +83,7 @@ export default {
             )
         } catch (error) {
             await interaction.editReply({
-                embeds: [errorEmbed(`That subreddit doesn't exist.`)],
+                embeds: [sendError(`That subreddit doesn't exist.`)],
             })
 
             return
@@ -91,7 +91,7 @@ export default {
 
         if (!res || !res.data || res.data.children.length == 0) {
             await interaction.editReply({
-                embeds: [errorEmbed(`That subreddit doesn't exist.`)],
+                embeds: [sendError(`That subreddit doesn't exist.`)],
             })
 
             return
@@ -112,7 +112,7 @@ export default {
         } catch (error) {
             await interaction.editReply({
                 embeds: [
-                    errorEmbed(
+                    sendError(
                         'All of the posts on that sub are blocked by our filter.'
                     ),
                 ],

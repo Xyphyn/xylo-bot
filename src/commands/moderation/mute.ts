@@ -6,7 +6,7 @@ import {
     GuildMember,
 } from 'discord.js'
 import ms from 'ms'
-import { errorEmbed } from 'util/embed.js'
+import { sendError } from 'util/embed.js'
 
 export async function mute(
     member: GuildMember,
@@ -99,7 +99,7 @@ export default {
         if (!member.moderatable) {
             await interaction.editReply({
                 embeds: [
-                    errorEmbed(
+                    sendError(
                         "That user can't be moderated. Do they have a higher permission than the bot?"
                     ),
                 ],

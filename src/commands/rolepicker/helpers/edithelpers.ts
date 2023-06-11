@@ -13,7 +13,7 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
 } from 'discord.js'
-import { errorEmbed, successEmbed } from 'util/embed.js'
+import { sendError, sendSuccess } from 'util/embed.js'
 import { modalRows } from 'util/modal.js'
 
 export async function editRolePicker(
@@ -95,7 +95,7 @@ export async function editRolePicker(
 
     if (!rolepicker || rolepicker.guild_id != interaction.guildId) {
         await modalSubmit.editReply({
-            embeds: [errorEmbed(`That rolepicker isn't in this guild.`)],
+            embeds: [sendError(`That rolepicker isn't in this guild.`)],
         })
 
         return
@@ -116,7 +116,7 @@ export async function editRolePicker(
     } catch (error) {
         await modalSubmit.editReply({
             embeds: [
-                errorEmbed(
+                sendError(
                     `The message of that rolepicker doesn't exist. Was it deleted?`
                 ),
             ],
@@ -141,12 +141,12 @@ export async function editRolePicker(
         )
 
         await modalSubmit.editReply({
-            embeds: [successEmbed(`Successfully updated that role picker.`)],
+            embeds: [sendSuccess(`Successfully updated that role picker.`)],
         })
     } catch (error) {
         await modalSubmit.editReply({
             embeds: [
-                errorEmbed(`Failed to update that role picker.`)
+                sendError(`Failed to update that role picker.`)
                     .addFields([
                         {
                             name: 'Message',

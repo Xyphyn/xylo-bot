@@ -1,7 +1,7 @@
 import { SlashSubcommand } from '@commands/command.js'
 import { db } from 'app.js'
 import { ApplicationCommandOptionType } from 'discord.js'
-import { errorEmbed, successEmbed } from 'util/embed.js'
+import { sendError, sendSuccess } from 'util/embed.js'
 
 export async function deleteWarning(id: number, guildId: string) {
     const warning = await db.warning.findFirst({
@@ -11,7 +11,7 @@ export async function deleteWarning(id: number, guildId: string) {
     })
 
     if (!warning || warning.guild_id != guildId) {
-        return errorEmbed(`That warning did not take place in this guild.`)
+        return sendError(`That warning did not take place in this guild.`)
     }
 
     await db.warning.delete({
@@ -20,7 +20,7 @@ export async function deleteWarning(id: number, guildId: string) {
         },
     })
 
-    return successEmbed(`Warning of ID \`${id}\` has been deleted.`)
+    return sendSuccess(`Warning of ID \`${id}\` has been deleted.`)
 }
 
 export default {

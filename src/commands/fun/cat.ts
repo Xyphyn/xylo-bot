@@ -8,7 +8,7 @@ import {
     EmbedBuilder,
 } from 'discord.js'
 import { asDisabled } from 'util/component.js'
-import { errorEmbed } from 'util/embed.js'
+import { sendError } from 'util/embed.js'
 
 export default {
     metadata: {
@@ -63,7 +63,7 @@ export default {
             if (!response || !response.url) {
                 await interaction.editReply({
                     embeds: [
-                        errorEmbed(
+                        sendError(
                             `Invalid arguments. Make sure to use alphanumeric characters.`
                         ),
                     ],
