@@ -8,7 +8,7 @@ import {
     ComponentType,
     EmbedBuilder,
 } from 'discord.js'
-import { asDisabled } from 'util/component.js'
+import { asDisabled, makeRow } from 'util/component.js'
 
 type RPSChoice = 'rock' | 'paper' | 'scissors'
 
@@ -55,34 +55,38 @@ export default {
     async execute({ interaction, client }) {
         const opponent = interaction.options.getUser('opponent')
 
-        const gameButtons = new ActionRowBuilder<ButtonBuilder>().setComponents(
-            new ButtonBuilder({
-                customId: 'xylo:fun:rps:rock',
-                label: 'Rock',
-                style: ButtonStyle.Secondary,
-                emoji: '🪨',
-            }),
-            new ButtonBuilder({
-                customId: 'xylo:fun:rps:paper',
-                label: 'Paper',
-                style: ButtonStyle.Secondary,
-                emoji: '📜',
-            }),
-            new ButtonBuilder({
-                customId: 'xylo:fun:rps:scissors',
-                label: 'Scissors',
-                style: ButtonStyle.Secondary,
-                emoji: '✂️',
-            })
-        )
+        const gameButtons = makeRow({
+            buttons: [
+                {
+                    id: 'rock',
+                    label: 'Rock',
+                    style: ButtonStyle.Secondary,
+                    emoji: '🪨',
+                },
+                {
+                    id: 'paper',
+                    label: 'Paper',
+                    style: ButtonStyle.Secondary,
+                    emoji: '📜',
+                },
+                {
+                    id: 'scissors',
+                    label: 'Scissors',
+                    style: ButtonStyle.Secondary,
+                    emoji: '✂️',
+                },
+            ],
+        })
 
-        const rematch = new ActionRowBuilder<ButtonBuilder>().setComponents(
-            new ButtonBuilder({
-                customId: 'xylo:fun:rps:rematch',
-                label: 'Rematch',
-                style: ButtonStyle.Secondary,
-            })
-        )
+        const rematch = makeRow({
+            buttons: [
+                {
+                    id: 'rematch',
+                    label: 'Rematch',
+                    style: ButtonStyle.Secondary,
+                },
+            ],
+        })
 
         let embed = new EmbedBuilder({
             title: 'Rock paper scissors',
@@ -90,7 +94,7 @@ export default {
             color: Color.primary,
         })
 
-        const reply = await interaction.deferReply()
+        await interaction.deferReply()
 
         let row = gameButtons
         let playing = true
@@ -145,7 +149,7 @@ export default {
 
                 int.deferUpdate()
 
-                const choice = int.customId.split(':').at(-1) as RPSChoice
+                const choice = int.customId as RPSChoice
 
                 if (int.user.id == interaction.user.id) playerChoice = choice
                 else if (int.user.id == opponent?.id) opponentChoice = choice

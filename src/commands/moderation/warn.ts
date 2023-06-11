@@ -13,7 +13,7 @@ import {
 import { mute } from './mute.js'
 import { deleteWarning } from '@commands/moderation/delwarn.js'
 import { sendError } from 'util/embed.js'
-import { asDisabled } from 'util/component.js'
+import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 
 export default {
     metadata: {
@@ -77,28 +77,28 @@ export default {
             },
         })
 
-        const buttonId = `xylo:moderation:warn:undo:${interaction.id}`
+        const actionRow = makeRow({
+            buttons: [
+                {
+                    id: 'undo',
+                    label: 'Undo',
+                    style: ButtonStyle.Danger,
+                },
+            ],
+        })
 
-        const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
-            new ButtonBuilder()
-                .setStyle(ButtonStyle.Danger)
-                .setLabel('Delete')
-                .setCustomId(buttonId)
-        )
-
-        const embed = new EmbedBuilder()
-            .setTitle(`Warning`)
-            .setColor(Color.warning)
-            .setDescription(`${BotEmoji.warning} <@${user.id}> was warned`)
-            .addFields([
+        const embed = new EmbedBuilder({
+            title: 'Warning',
+            color: Color.warning,
+            description: `${BotEmoji.warning} <@${user.id}> was warned`,
+            fields: [
                 {
                     name: 'Reason',
                     value: reason,
                 },
-            ])
-            .setFooter({
-                text: `Warning ID: ${warning.id}`,
-            })
+            ],
+            footer: { text: `Warning ID: ${warning.id}` },
+        })
 
         await interaction.editReply({
             embeds: [embed],
@@ -157,14 +157,10 @@ export default {
             }
         }
 
-        const int = await message
-            .awaitMessageComponent({
-                dispose: true,
-                interactionResponse: message,
-                time: 30 * 1000,
-                filter: (int) => int.user.id == interaction.user.id,
-            })
-            .catch(async (err) => {})
+        const int = await awaitInteraction({
+            message: message,
+            user: interaction.user,
+        })
 
         if (!int) {
             await interaction.editReply({

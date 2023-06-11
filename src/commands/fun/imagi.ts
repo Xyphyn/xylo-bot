@@ -156,5 +156,9 @@ export default {
                 components: [actionRow],
             })
         }
+
+        await interaction.editReply({
+            components: [asDisabled(actionRow)],
+        })
     },
 } as SlashSubcommand

@@ -9,7 +9,7 @@ import {
     ComponentType,
     EmbedBuilder,
 } from 'discord.js'
-import { asDisabled } from 'util/component.js'
+import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 import { sendError } from 'util/embed.js'
 
 interface RedditPostChild {
@@ -121,36 +121,42 @@ export default {
             return
         }
 
-        const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
-            new ButtonBuilder()
-                .setCustomId(`xylo:fun:imagi:back:${message.id}`)
-                .setLabel('Back')
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId(`xylo:fun:imagi:next:${message.id}`)
-                .setLabel('Next')
-                .setStyle(ButtonStyle.Primary)
-        )
+        const actionRow = makeRow({
+            buttons: [
+                {
+                    id: 'back',
+                    label: 'Back',
+                    style: ButtonStyle.Primary,
+                },
 
-        await interaction.editReply({
-            embeds: [postEmbed(posts[index])],
-            components: [actionRow],
+                {
+                    id: 'next',
+                    label: 'Next',
+                    style: ButtonStyle.Primary,
+                },
+            ],
         })
 
-        const collector = message.createMessageComponentCollector({
-            componentType: ComponentType.Button,
-            dispose: true,
-            idle: 60 * 1000,
-            time: silent ? 14 * 60 * 100 : undefined,
-            filter: (i) => i.user.id == interaction.user.id,
-        })
+        let interacting = true
+        while (interacting) {
+            const reply = await interaction.editReply({
+                embeds: [postEmbed(posts[index])],
+                components: [actionRow],
+            })
 
-        collector.on('collect', async (interaction) => {
-            await interaction.deferUpdate()
+            const int = await awaitInteraction({
+                message: reply,
+                user: interaction.user,
+            })
 
-            if (!(interaction instanceof ButtonInteraction)) return
+            if (!int) {
+                interacting = false
+                break
+            }
 
-            const next = interaction.customId.startsWith(`xylo:fun:imagi:next`)
+            int.deferUpdate()
+
+            const next = int.customId == `next`
 
             let prevIndex = index
 
@@ -191,18 +197,16 @@ export default {
                     components: [actionRow],
                 })
             }
-        })
+        }
 
-        collector.on('end', async () => {
-            if (!silent) {
-                await message.edit({
-                    components: [asDisabled(actionRow)],
-                })
-            } else {
-                await interaction.editReply({
-                    components: [asDisabled(actionRow)],
-                })
-            }
-        })
+        if (!silent) {
+            await message.edit({
+                components: [asDisabled(actionRow)],
+            })
+        } else {
+            await interaction.editReply({
+                components: [asDisabled(actionRow)],
+            })
+        }
     },
 } as SlashSubcommand
