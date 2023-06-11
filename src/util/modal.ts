@@ -1,8 +1,15 @@
 import {
     ActionRowBuilder,
+    ButtonInteraction,
+    ChatInputCommandInteraction,
     ComponentType,
+    Interaction,
+    Message,
     ModalBuilder,
+    ModalSubmitFields,
+    RepliableInteraction,
     TextInputBuilder,
+    TextInputStyle,
 } from 'discord.js'
 
 // automatically create the action rows,
@@ -21,6 +28,8 @@ interface textInput {
     maxLength?: number
     minLength?: number
     value?: string
+    style: TextInputStyle
+    required?: boolean
 }
 
 interface modalData {
@@ -51,10 +60,30 @@ export function makeModal({
                     placeholder: input.placeholder,
                     value: input.value,
                     type: ComponentType.TextInput,
+                    style: input.style,
+                    required: input.required,
                 })
             )
         )
     )
 
     return modal
+}
+
+export async function awaitModal(
+    interaction: ChatInputCommandInteraction | ButtonInteraction
+) {
+    return await interaction
+        .awaitModalSubmit({
+            dispose: true,
+            time: 14 * 60 * 1000,
+        })
+        .catch((_) => {})
+}
+
+export function parseModalFields(
+    fields: ModalSubmitFields,
+    inputIds: string[]
+) {
+    return inputIds.map((id) => fields.getTextInputValue(id))
 }

@@ -3,16 +3,14 @@ import { rolePickerEmbed } from '@commands/rolepicker/rolepicker.js'
 import { Color } from '@config/config.js'
 import { db } from 'app.js'
 import {
-    ActionRowBuilder,
     ApplicationCommandOptionType,
-    ButtonBuilder,
     ButtonStyle,
     EmbedBuilder,
-    ModalBuilder,
-    TextInputBuilder,
     TextInputStyle,
 } from 'discord.js'
-import { sendSuccess } from 'util/embed.js'
+import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
+import { sendError, sendSuccess } from 'util/embed.js'
+import { awaitModal, makeModal, parseModalFields } from 'util/modal.js'
 
 export default {
     metadata: {
@@ -26,97 +24,113 @@ export default {
     async execute({ interaction }) {
         if (!interaction.guildId || !interaction.channel) return false
 
-        const setupButton = new ActionRowBuilder<ButtonBuilder>().setComponents(
-            new ButtonBuilder()
-                .setLabel('Setup')
-                .setCustomId(`xylo:rolepicker:create:setup`)
-                .setStyle(ButtonStyle.Secondary)
-        )
+        const setupButton = makeRow({
+            buttons: [
+                {
+                    label: 'Setup',
+                    id: 'setup',
+                    style: ButtonStyle.Secondary,
+                },
+            ],
+        })
 
         const reply = await interaction.reply({
             embeds: [
-                new EmbedBuilder()
-                    .setTitle('Setup rolepicker')
-                    .setDescription(
-                        'Click the button below to setup this role picker.'
-                    )
-                    .setColor(Color.primary),
+                new EmbedBuilder({
+                    title: 'Setup rolepicker',
+                    description:
+                        'Click the button below to setup this role picker.',
+                    color: Color.primary,
+                }),
             ],
+            ephemeral: true,
             components: [setupButton],
         })
 
-        try {
-            var buttonInt = await reply.awaitMessageComponent({
-                time: 60 * 1000,
-                dispose: true,
-                filter: (int) => int.user == interaction.user,
+        const buttonInt = await awaitInteraction({
+            message: reply,
+            user: interaction.user,
+        })
+
+        if (!buttonInt) {
+            await interaction.editReply({
+                components: [asDisabled(setupButton)],
             })
-        } catch (error) {
+
             return
         }
 
-        const modal = new ModalBuilder()
-            .setCustomId(`xylo:rolepicker:create:modal`)
-            .setTitle(`Create role picker`)
-
-        const row1 = new ActionRowBuilder<TextInputBuilder>().setComponents(
-            new TextInputBuilder()
-                .setLabel('Title')
-                .setStyle(TextInputStyle.Short)
-                .setPlaceholder(`The title of the embed`)
-                .setCustomId(`title`)
-                .setMaxLength(128)
-                .setRequired(true)
-        )
-
-        const row2 = new ActionRowBuilder<TextInputBuilder>().setComponents(
-            new TextInputBuilder()
-                .setLabel('Description')
-                .setStyle(TextInputStyle.Paragraph)
-                .setPlaceholder(`The description of the embed`)
-                .setCustomId(`description`)
-                .setMaxLength(512)
-                .setRequired(true)
-        )
-
-        const row3 = new ActionRowBuilder<TextInputBuilder>().setComponents(
-            new TextInputBuilder()
-                .setLabel('Unique')
-                .setStyle(TextInputStyle.Short)
-                .setPlaceholder(`1 role at max (true/false) (default: false)`)
-                .setCustomId(`unique`)
-                .setMaxLength(5)
-                .setMinLength(4)
-                .setRequired(false)
-        )
-
-        modal.setComponents(row1, row2, row3)
+        const modal = makeModal({
+            data: { title: 'Create role picker' },
+            inputs: [
+                {
+                    id: 'title',
+                    label: 'Title',
+                    placeholder: 'The title of the embed',
+                    maxLength: 128,
+                    required: true,
+                    style: TextInputStyle.Short,
+                },
+                {
+                    id: 'description',
+                    label: 'Description',
+                    placeholder: 'The description of the embed',
+                    maxLength: 1024,
+                    required: true,
+                    style: TextInputStyle.Paragraph,
+                },
+                {
+                    id: 'unique',
+                    label: 'Unique',
+                    placeholder: '1 role at max (true/false) (default: false)',
+                    maxLength: 5,
+                    minLength: 4,
+                    required: false,
+                    style: TextInputStyle.Short,
+                },
+            ],
+        })
 
         await buttonInt.showModal(modal)
 
-        try {
-            // I'm pretty sure this is a bad practice but we're
-            // returning if modalSubmit ends up not existing
-            // so i'd say it's okay
-            var modalSubmit = await interaction.awaitModalSubmit({
-                time: 3 * 60 * 1000,
-                dispose: true,
+        const modalSubmit = await awaitModal(interaction)
+
+        if (!modalSubmit) return
+        await modalSubmit.deferUpdate()
+
+        const [title, description, uniqueText] = parseModalFields(
+            modalSubmit.fields,
+            ['title', 'description', 'unique']
+        )
+
+        let unique = uniqueText?.toLowerCase() == 'true' ? true : false
+
+        const message = await interaction.channel
+            .send({
+                embeds: [rolePickerEmbed(title, description)],
+                components: [
+                    makeRow({
+                        buttons: [
+                            {
+                                id: 'xylo:rolepicker:edit',
+                                label: 'Edit',
+                                style: ButtonStyle.Secondary,
+                            },
+                        ],
+                    }),
+                ],
             })
-        } catch (error) {
-            // User didn't respond in time. Just ignore it.
-            return
-        }
+            .catch((error) => {
+                interaction.editReply({
+                    embeds: [
+                        sendError(`Failed to create that role picker.`, error),
+                    ],
+                })
 
-        await modalSubmit.deferReply({ ephemeral: true })
+                return
+            })
 
-        const title = modalSubmit.fields.getTextInputValue('title')!
-        const description = modalSubmit.fields.getTextInputValue('description')!
-        const uniqueText =
-            modalSubmit.fields.getTextInputValue('unique') || 'false'
-
-        let unique = uniqueText.toLowerCase() == 'true' ? true : false
-
-        const message = await reply.fetch()
+        if (!message) return
 
         const selector = await db.roleSelector.create({
             data: {
@@ -127,27 +141,14 @@ export default {
             },
         })
 
-        await interaction.editReply({
-            embeds: [rolePickerEmbed(title, description)],
-            components: [
-                new ActionRowBuilder<ButtonBuilder>().setComponents(
-                    new ButtonBuilder({
-                        custom_id: 'xylo:rolepicker:edit',
-                        label: 'Edit',
-                        style: ButtonStyle.Secondary,
-                    })
-                ),
-            ],
-        })
-
         await modalSubmit.editReply({
             embeds: [
                 sendSuccess(
-                    `Successfully created the role picker of ID ${selector.id}`
+                    `Successfully created the role picker of ID \`${selector.id}\``
                 ).addFields([
                     {
                         name: 'Tip',
-                        value: `Use </rolepicker addrole:1110999044207169628> to add an option to this role picker.`,
+                        value: `Use the edit button to add an option to this role picker.`,
                     },
                 ]),
             ],
