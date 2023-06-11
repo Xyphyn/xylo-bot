@@ -47,16 +47,6 @@ export default {
                 name: user.username,
                 iconURL: user.avatarURL() ?? '',
             })
-            .setDescription(
-                results
-                    .map(
-                        (result) =>
-                            `\`${result.id}\` <t:${Math.floor(
-                                result.time.getTime() / 1000
-                            )}:R> ${result.reason}`
-                    )
-                    .join('\n')
-            )
             .addFields([
                 {
                     name: 'Total',
@@ -75,6 +65,21 @@ export default {
                     inline: true,
                 },
             ])
+
+        if (results.length > 0) {
+            embed.setDescription(
+                results
+                    .map(
+                        (result) =>
+                            `\`${result.id}\` <t:${Math.floor(
+                                result.time.getTime() / 1000
+                            )}:R> ${result.reason}`
+                    )
+                    .join('\n')
+            )
+        } else {
+            embed.setDescription(`This user has no warnings.`)
+        }
 
         await interaction.editReply({
             embeds: [embed],
