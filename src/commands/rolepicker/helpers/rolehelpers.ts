@@ -16,14 +16,21 @@ import {
     EmbedBuilder,
     ModalBuilder,
     RoleSelectMenuBuilder,
+    RoleSelectMenuInteraction,
     StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
     StringSelectMenuOptionBuilder,
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js'
-import { asDisabled } from 'util/component.js'
+import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 import { sendError, sendSuccess } from 'util/embed.js'
-import { modalRows } from 'util/modal.js'
+import {
+    awaitModal,
+    makeModal,
+    modalRows,
+    parseModalFields,
+} from 'util/modal.js'
 import { isEmoji, getEmoji } from 'emoji-info'
 
 export async function editRolePickerRole(
@@ -32,9 +39,7 @@ export async function editRolePickerRole(
 ) {
     const selectMenu =
         new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-            roleSelector(rolepicker)
-                .setCustomId(`xylo:editrolepicker:edit:items:edit:select`)
-                .setMaxValues(1)
+            roleSelector(rolepicker).setCustomId(`select`).setMaxValues(1)
         )
 
     const reply = await interaction.editReply({
@@ -48,20 +53,17 @@ export async function editRolePickerRole(
         components: [selectMenu],
     })
 
-    const selection = await reply
-        .awaitMessageComponent({
-            filter: (int) =>
-                int.user == interaction.user && int.message.id == reply.id,
-            time: 30 * 1000,
-            dispose: true,
-            componentType: ComponentType.StringSelect,
+    const selection = await awaitInteraction({
+        message: reply,
+        user: interaction.user,
+    })
+
+    if (!selection || !(selection instanceof StringSelectMenuInteraction)) {
+        interaction.editReply({
+            components: [asDisabled(selectMenu)],
         })
-        .catch((_) => {
-            interaction.editReply({
-                components: [asDisabled(selectMenu)],
-            })
-        })
-    if (!selection) return
+        return
+    }
 
     const selectItemIndex = rolepicker.values.findIndex(
         (item) => item.role_id == selection.values[0]
@@ -69,57 +71,57 @@ export async function editRolePickerRole(
     const selectItem = rolepicker.values[selectItemIndex]
     if (!selectItem) return
 
-    const modal = new ModalBuilder({
-        title: 'Edit role picker',
-        customId: `xylo:editrolepicker:edit:items:edit`,
-        components: modalRows(
-            new TextInputBuilder({
-                customId: `label`,
-                required: true,
-                maxLength: 128,
-                placeholder: `Epic role`,
-                style: TextInputStyle.Short,
+    const modal = makeModal({
+        data: {
+            title: 'Edit role picker',
+            id: 'editmodal',
+        },
+        inputs: [
+            {
+                id: 'label',
                 label: 'Label',
                 value: selectItem.label,
-            }),
-            new TextInputBuilder({
-                customId: `description`,
+                maxLength: 128,
+                required: true,
+                placeholder: 'Epic role',
+                style: TextInputStyle.Short,
+            },
+            {
+                id: 'description',
                 required: false,
                 maxLength: 256,
-                placeholder: `A very cool role`,
+                placeholder: 'A very cool role',
                 style: TextInputStyle.Short,
                 label: 'Description',
                 value: selectItem.description ?? '',
-            }),
-            new TextInputBuilder({
-                customId: `emoji`,
+            },
+            {
+                id: 'emoji',
                 required: false,
                 maxLength: 128,
-                placeholder: `:smiley:`,
+                placeholder: ':smiley:',
                 style: TextInputStyle.Short,
                 label: 'Emoji',
                 value: selectItem.emoji ?? '',
-            })
-        ),
+            },
+        ],
     })
 
     await selection.showModal(modal)
 
-    const modalSubmit = await interaction
-        .awaitModalSubmit({
-            dispose: true,
-            time: 3 * 60 * 1000,
-        })
-        .catch((_) => {})
+    const modalSubmit = await awaitModal(selection)
 
     if (!modalSubmit) return
 
     await modalSubmit.deferUpdate()
 
-    const label =
-        modalSubmit.fields.getTextInputValue('label') ?? selectItem.label
-    const description = modalSubmit.fields.getTextInputValue('description')
-    let emoji = modalSubmit.fields.getTextInputValue('emoji')
+    let [label, description, emoji] = parseModalFields(modalSubmit.fields, [
+        'label',
+        'description',
+        'emoji',
+    ])
+
+    if (!label) label = selectItem.label
 
     if (emoji) {
         if (isEmoji(emoji, true)) {
@@ -159,9 +161,7 @@ export async function deleteRolePickerRole(
 ) {
     const selectMenu =
         new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-            roleSelector(rolepicker)
-                .setCustomId(`xylo:editrolepicker:edit:items:delete:select`)
-                .setMaxValues(1)
+            roleSelector(rolepicker).setCustomId(`select`).setMaxValues(1)
         )
 
     const reply = await interaction.editReply({
@@ -175,20 +175,16 @@ export async function deleteRolePickerRole(
         components: [selectMenu],
     })
 
-    const selection = await reply
-        .awaitMessageComponent({
-            filter: (int) =>
-                int.user == interaction.user && int.message.id == reply.id,
-            time: 30 * 1000,
-            dispose: true,
-            componentType: ComponentType.StringSelect,
+    const selection = await awaitInteraction({
+        message: reply,
+        user: interaction.user,
+    })
+    if (!selection || !(selection instanceof StringSelectMenuInteraction)) {
+        interaction.editReply({
+            components: [asDisabled(selectMenu)],
         })
-        .catch((_) => {
-            interaction.editReply({
-                components: [asDisabled(selectMenu)],
-            })
-        })
-    if (!selection) return
+        return
+    }
 
     await selection.deferUpdate()
 
@@ -218,7 +214,7 @@ export async function addRolePickerRole(
     const selectMenu =
         new ActionRowBuilder<RoleSelectMenuBuilder>().setComponents(
             new RoleSelectMenuBuilder({
-                customId: `xylo:rolepicker:edit:items:add:select`,
+                customId: `select`,
                 maxValues: 1,
                 minValues: 1,
             })
@@ -235,13 +231,18 @@ export async function addRolePickerRole(
         components: [selectMenu],
     })
 
-    const selection = await reply.awaitMessageComponent({
-        filter: (int) =>
-            int.user == interaction.user && int.message.id == reply.id,
-        time: 30 * 1000,
-        dispose: true,
-        componentType: ComponentType.RoleSelect,
+    const selection = await awaitInteraction({
+        message: reply,
+        user: interaction.user,
     })
+
+    if (!selection || !(selection instanceof RoleSelectMenuInteraction)) {
+        await interaction.editReply({
+            components: [asDisabled(selectMenu)],
+        })
+
+        return
+    }
 
     if (
         rolepicker.values
@@ -252,60 +253,53 @@ export async function addRolePickerRole(
             embeds: [sendError(`That role is already in the role picker.`)],
             components: [],
         })
+
+        return
     }
-    await interaction.editReply({
-        components: [asDisabled(selectMenu)],
-    })
 
-    if (!selection) return
-
-    const modal = new ModalBuilder({
-        title: 'Edit role picker',
-        customId: `xylo:editrolepicker:edit:items:edit`,
-        components: modalRows(
-            new TextInputBuilder({
-                customId: `label`,
+    const modal = makeModal({
+        data: { title: 'Edit role picker', id: 'editmodal' },
+        inputs: [
+            {
+                id: 'label',
                 required: true,
                 maxLength: 128,
-                placeholder: `Epic role`,
+                placeholder: 'Epic role',
                 style: TextInputStyle.Short,
                 label: 'Label',
-            }),
-            new TextInputBuilder({
-                customId: `description`,
+            },
+            {
+                id: 'description',
                 required: false,
                 maxLength: 256,
-                placeholder: `A very cool role`,
+                placeholder: 'A very cool role',
                 style: TextInputStyle.Short,
                 label: 'Description',
-            }),
-            new TextInputBuilder({
-                customId: `emoji`,
+            },
+            {
+                id: 'emoji',
                 required: false,
                 maxLength: 128,
-                placeholder: `:smiley:`,
+                placeholder: ':smiley:',
                 style: TextInputStyle.Short,
                 label: 'Emoji',
-            })
-        ),
+            },
+        ],
     })
 
     await selection.showModal(modal)
 
-    const modalSubmit = await interaction
-        .awaitModalSubmit({
-            dispose: true,
-            time: 3 * 60 * 1000,
-        })
-        .catch((_) => {})
+    const modalSubmit = await awaitModal(selection)
 
     if (!modalSubmit) return
 
     await modalSubmit.deferUpdate()
 
-    const label = modalSubmit.fields.getTextInputValue('label')!
-    const description = modalSubmit.fields.getTextInputValue('description')
-    let emoji = modalSubmit.fields.getTextInputValue('emoji')
+    let [label, description, emoji] = parseModalFields(modalSubmit.fields, [
+        'label',
+        'description',
+        'emoji',
+    ])
 
     if (emoji) {
         if (isEmoji(emoji, true)) {
@@ -357,26 +351,28 @@ export async function editRolePickerRoles(
 
     if (!rolepicker) return
 
-    const actions = new ActionRowBuilder<ButtonBuilder>().setComponents(
-        new ButtonBuilder({
-            customId: 'xylo:rolepicker:edit:items:add',
-            label: 'Add',
-            style: ButtonStyle.Success,
-            disabled: rolepicker.values.length >= 25,
-        }),
-        new ButtonBuilder({
-            customId: 'xylo:rolepicker:edit:items:edit',
-            label: 'Edit',
-            style: ButtonStyle.Primary,
-            disabled: rolepicker.values.length == 0,
-        }),
-        new ButtonBuilder({
-            customId: 'xylo:rolepicker:edit:items:delete',
-            label: 'Delete',
-            style: ButtonStyle.Danger,
-            disabled: rolepicker.values.length == 0,
-        })
-    )
+    const actions = makeRow({
+        buttons: [
+            {
+                id: 'add',
+                label: 'Add',
+                style: ButtonStyle.Success,
+                disabled: rolepicker.values.length >= 25,
+            },
+            {
+                id: 'edit',
+                label: 'Edit',
+                style: ButtonStyle.Primary,
+                disabled: rolepicker.values.length == 0,
+            },
+            {
+                id: 'delete',
+                label: 'Delete',
+                style: ButtonStyle.Danger,
+                disabled: rolepicker.values.length == 0,
+            },
+        ],
+    })
 
     const reply = await interaction.editReply({
         embeds: [
@@ -392,7 +388,7 @@ export async function editRolePickerRoles(
 
     const collector = reply.createMessageComponentCollector({
         time: 14 * 60 * 1000,
-        idle: 30 * 1000,
+        idle: 60 * 1000,
         dispose: true,
         filter: (int) =>
             int.user.id == interaction.user.id && int.message.id == reply.id,
@@ -400,16 +396,14 @@ export async function editRolePickerRoles(
     })
 
     collector.on('collect', async (int) => {
-        if (int.customId == 'xylo:rolepicker:edit:items:edit') {
-            await int.deferReply({ ephemeral: true })
+        await int.deferReply({ ephemeral: true })
+        if (int.customId == 'edit') {
             editRolePickerRole(rolepicker, int)
         }
-        if (int.customId == 'xylo:rolepicker:edit:items:add') {
-            await int.deferReply({ ephemeral: true })
+        if (int.customId == 'add') {
             addRolePickerRole(rolepicker, int)
         }
-        if (int.customId == 'xylo:rolepicker:edit:items:delete') {
-            await int.deferReply({ ephemeral: true })
+        if (int.customId == 'delete') {
             deleteRolePickerRole(rolepicker, int)
         }
     })

@@ -8,6 +8,8 @@ import {
     ModalBuilder,
     ModalSubmitFields,
     RepliableInteraction,
+    RoleSelectMenuInteraction,
+    StringSelectMenuInteraction,
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js'
@@ -71,7 +73,11 @@ export function makeModal({
 }
 
 export async function awaitModal(
-    interaction: ChatInputCommandInteraction | ButtonInteraction
+    interaction:
+        | ChatInputCommandInteraction
+        | ButtonInteraction
+        | StringSelectMenuInteraction
+        | RoleSelectMenuInteraction
 ) {
     return await interaction
         .awaitModalSubmit({
