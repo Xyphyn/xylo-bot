@@ -7,6 +7,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "tsc && tsc-alias && node dist/app.js",
+        "lint": "eslint .",
         "build": "tsc && tsc-alias",
         "build:generate": "prisma generate && npm run build",
         "start": "node dist/app.js",
@@ -28,6 +29,9 @@
     "devDependencies": {
         "@types/ms": "^0.7.31",
         "@types/node": "^20.2.3",
+        "@typescript-eslint/eslint-plugin": "^5.59.11",
+        "@typescript-eslint/parser": "^5.59.11",
+        "eslint": "^8.42.0",
         "prisma": "^4.14.1",
         "ts-node": "^10.9.1",
         "tsc-alias": "^1.8.6",
