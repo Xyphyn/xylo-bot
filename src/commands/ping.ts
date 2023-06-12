@@ -9,7 +9,7 @@ import {
 } from 'discord.js'
 import { SlashCommand } from '@commands/command'
 import { db } from 'app.js'
-import { Color } from '@config/config.js'
+import { Color, getConfig } from '@config/config.js'
 import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 
 async function fetchPing(
@@ -69,7 +69,7 @@ export default {
                 break
             }
 
-            int.deferReply()
+            int.deferUpdate()
         }
 
         await interaction.editReply({
