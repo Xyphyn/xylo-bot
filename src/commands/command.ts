@@ -23,6 +23,10 @@ export interface SlashCommand {
     botpermission?: PermissionResolvable
     // The cooldown (in millis)
     cooldown?: number
+    /**
+     * A filter if the command should be registered.
+     */
+    filter?: () => boolean
 
     execute: ({
         interaction,
@@ -74,7 +78,9 @@ export async function registerCommands(): Promise<boolean> {
         await rest.put(
             Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
             {
-                body: commandList.map((command) => command.metadata),
+                body: commandList
+                    .filter((c) => c.filter?.() ?? true)
+                    .map((c) => c.metadata),
             }
         )
     } catch (error) {
