@@ -1,8 +1,6 @@
 import { SlashCommand } from '@commands/command.js'
 import {
     ApplicationCommandOptionType,
-    Attachment,
-    AttachmentBuilder,
     EmbedBuilder,
 } from 'discord.js'
 import { sendError } from 'util/embed.js'

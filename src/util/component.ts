@@ -115,5 +115,5 @@ export async function awaitInteraction<T extends MessageComponentType>({
             idle: 60 * 1000,
             dispose: true,
         })
-        .catch((_) => {})
+        .catch((_) => undefined)
 }

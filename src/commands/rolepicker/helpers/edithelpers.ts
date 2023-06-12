@@ -2,24 +2,14 @@ import {
     refreshRolepicker,
     rolePickerEmbed,
 } from '@commands/rolepicker/rolepicker.js'
-import { Color } from '@config/config.js'
 import { client, db } from 'app.js'
 import {
-    EmbedBuilder,
-    ModalBuilder,
     TextInputStyle,
-    ActionRowBuilder,
-    TextInputBuilder,
     ButtonInteraction,
     ChatInputCommandInteraction,
 } from 'discord.js'
 import { sendError, sendSuccess } from 'util/embed.js'
-import {
-    awaitModal,
-    makeModal,
-    modalRows,
-    parseModalFields,
-} from 'util/modal.js'
+import { awaitModal, makeModal, parseModalFields } from 'util/modal.js'
 
 export async function editRolePicker(
     id: number,
@@ -74,7 +64,7 @@ export async function editRolePicker(
     // if it is defined, then if it's true return true, otherwise false
     // this catches if someone puts in something cursed like
     // היכאדהואודאיסושדעאדועאוסדיואעשדיה
-    let unique = uniqueText
+    const unique = uniqueText
         ? uniqueText.toLowerCase() == 'true'
             ? true
             : false
@@ -127,18 +117,17 @@ export async function editRolePicker(
         },
     })
 
-    try {
-        await refreshRolepicker(
-            newRolePicker.message_id,
-            newRolePicker.channel_id
-        )
-
-        await modalSubmit.editReply({
-            embeds: [sendSuccess(`Successfully updated that role picker.`)],
+    await refreshRolepicker(newRolePicker.message_id, newRolePicker.channel_id)
+        .then(async () => {
+            await modalSubmit.editReply({
+                embeds: [sendSuccess(`Successfully updated that role picker.`)],
+            })
         })
-    } catch (error: any) {
-        await modalSubmit.editReply({
-            embeds: [sendError(`Failed to update that role picker.`, error)],
+        .catch(async (error) => {
+            await modalSubmit.editReply({
+                embeds: [
+                    sendError(`Failed to update that role picker.`, error),
+                ],
+            })
         })
-    }
 }

@@ -1,4 +1,3 @@
-import { db } from 'app.js'
 
 export enum Color {
     primary = 0xffffff,

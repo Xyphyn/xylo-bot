@@ -1,9 +1,7 @@
 import { SlashCommandAutocomplete, SlashSubcommand } from '@commands/command.js'
 import { Color } from '@config/config.js'
 import {
-    ActionRowBuilder,
     ApplicationCommandOptionType,
-    ButtonBuilder,
     ButtonStyle,
     EmbedBuilder,
 } from 'discord.js'
@@ -43,7 +41,7 @@ export default {
         let tag = interaction.options.getString('tag')
         if (tag) tag = encodeURIComponent(tag)
 
-        let serviceURL = `https://cataas.com/cat${tag ? `/${tag}` : ''}${
+        const serviceURL = `https://cataas.com/cat${tag ? `/${tag}` : ''}${
             saying ? `/says/${saying}` : ''
         }?json=true`
 
@@ -53,7 +51,7 @@ export default {
 
         while (interacting) {
             const response: { url: string } = await fetch(serviceURL).then(
-                (res) => res.json().catch((_) => {})
+                (res) => res.json().catch((_) => undefined)
             )
 
             if (!response || !response.url) {

@@ -1,12 +1,4 @@
-import {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonInteraction,
-    ButtonStyle,
-    Client,
-    EmbedBuilder,
-    Interaction,
-} from 'discord.js'
+import { ButtonStyle, Client, EmbedBuilder } from 'discord.js'
 import { SlashCommand } from '@commands/command'
 import { db } from 'app.js'
 import { Color } from '@config/config.js'
@@ -27,7 +19,7 @@ export default {
     },
 
     async execute({ interaction, client }) {
-        const message = await interaction.deferReply()
+        await interaction.deferReply()
 
         let refresh = true
 

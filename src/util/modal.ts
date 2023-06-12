@@ -3,11 +3,8 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
     ComponentType,
-    Interaction,
-    Message,
     ModalBuilder,
     ModalSubmitFields,
-    RepliableInteraction,
     RoleSelectMenuInteraction,
     StringSelectMenuInteraction,
     TextInputBuilder,
@@ -84,7 +81,7 @@ export async function awaitModal(
             dispose: true,
             time: 14 * 60 * 1000,
         })
-        .catch((_) => {})
+        .catch((_) => undefined)
 }
 
 export function parseModalFields(

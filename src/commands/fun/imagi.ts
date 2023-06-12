@@ -1,12 +1,8 @@
 import { SlashSubcommand } from '@commands/command.js'
 import { Color } from '@config/config.js'
 import {
-    ActionRowBuilder,
     ApplicationCommandOptionType,
-    ButtonBuilder,
-    ButtonInteraction,
     ButtonStyle,
-    ComponentType,
     EmbedBuilder,
 } from 'discord.js'
 import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
@@ -113,7 +109,7 @@ export default {
 
             const next = int.customId == `next`
 
-            let prevIndex = index
+            const prevIndex = index
 
             if (next) index++
             else index--
