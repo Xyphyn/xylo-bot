@@ -1,14 +1,7 @@
 import { SlashCommand } from '@commands/command.js'
-import {
-    ActionRowBuilder,
-    ApplicationCommandOptionType,
-    ComponentType,
-    EmbedBuilder,
-    StringSelectMenuBuilder,
-} from 'discord.js'
+import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
 import { Translator, TargetLanguageCode } from 'deepl-node'
 import { BotEmoji, Color } from '@config/config.js'
-import { asDisabled } from 'util/component.js'
 
 enum Languages {
     English = 'en',
@@ -131,26 +124,7 @@ export default {
         if (language == 'en') language = 'en-GB'
         const silent = interaction.options.getBoolean('silent') || false
 
-        const reply = await interaction.deferReply({ ephemeral: silent })
-
-        const selectMenu =
-            new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(
-                new StringSelectMenuBuilder({
-                    customId: `xylo:translate:languages`,
-                    maxValues: 1,
-                    minValues: 1,
-                    placeholder: 'Select another language',
-                    options: Object.keys(Languages).map((key) => {
-                        return {
-                            label: key,
-                            value: Languages[key as keyof typeof Languages],
-                            emoji: LanguageEmojis[
-                                Languages[key as keyof typeof Languages]
-                            ],
-                        }
-                    }),
-                })
-            )
+        await interaction.deferReply({ ephemeral: silent })
 
         const translator = new Translator(process.env.DEEPL_KEY || '')
         const response = await translator.translateText(
@@ -158,6 +132,8 @@ export default {
             null,
             language as TargetLanguageCode
         )
+
+        if (language == 'en-GB') language = 'en'
 
         const embed = translationEmbed(
             text,
@@ -168,45 +144,6 @@ export default {
 
         await interaction.editReply({
             embeds: [embed],
-            components: [selectMenu],
-        })
-
-        const collector =
-            reply.createMessageComponentCollector<ComponentType.StringSelect>({
-                filter: (int) => int.user.id == interaction.user.id,
-                dispose: true,
-                idle: 60 * 1000,
-                time: 14 * 60 * 1000,
-            })
-
-        collector.on('collect', async (int) => {
-            int.deferUpdate()
-
-            let language = int.values[0]
-            if (language == 'en') language = 'en-GB'
-
-            const response = await translator.translateText(
-                text,
-                null,
-                language as TargetLanguageCode
-            )
-
-            const embed = translationEmbed(
-                text,
-                response.text,
-                response.detectedSourceLang,
-                language
-            )
-
-            await interaction.editReply({
-                embeds: [embed],
-            })
-        })
-
-        collector.on('end', async () => {
-            await interaction.editReply({
-                components: [asDisabled(selectMenu)],
-            })
         })
     },
 } as SlashCommand
