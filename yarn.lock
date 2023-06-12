@@ -479,6 +479,13 @@ chalk@^4.0.0:
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
+cache-manager@^5.2.2:
+  version "5.2.2"
+  resolved "https://registry.yarnpkg.com/cache-manager/-/cache-manager-5.2.2.tgz#1f2e3328247a3c5c63b722cadab6e084b924d320"
+  integrity sha512-QYEct/rVt5HfNvyWpHQurOa1IgpjP9V0X3E5O8rdEmuKcucpnMs7CwK0bHvv92svxZXlN2w5hgMFdrbiYoHeIQ==
+  dependencies:
+    lodash.clonedeep "^4.5.0"
+    lru-cache "~9.1.1"
 
 chalk@^5.0.0, chalk@^5.2.0:
   version "5.2.0"
@@ -1055,6 +1062,10 @@ lodash.merge@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
   integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
 
 lodash.snakecase@^4.1.1:
   version "4.1.1"
@@ -1085,6 +1096,10 @@ lru-cache@^6.0.0:
   integrity sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==
   dependencies:
     yallist "^4.0.0"
+lru-cache@~9.1.1:
+  version "9.1.2"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-9.1.2.tgz#255fdbc14b75589d6d0e73644ca167a8db506835"
+  integrity sha512-ERJq3FOzJTxBbFjZ7iDs+NiK4VI9Wz+RdrrAB8dio1oV+YvdPzUEE4QNiT2VD51DkIbCYRUUzCRkssXCHqSnKQ==
 
 make-error@^1.1.1:
   version "1.3.6"

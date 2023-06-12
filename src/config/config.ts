@@ -1,3 +1,6 @@
+import { GuildConfig } from '@prisma/client'
+import { db } from 'app.js'
+import { caching } from 'cache-manager'
 
 export enum Color {
     primary = 0xffffff,
@@ -12,8 +15,36 @@ export enum BotEmoji {
     warning = '<:warning:1110297581281619969>',
 }
 
-export interface GuildConfig {
-    moderation: {
-        warningThreshold: number
+const configCache = await caching('memory', {
+    max: 100,
+    ttl: 60 * 1000,
+})
+
+interface GuildConfigData {
+    embedColor: number
+}
+
+const defaultConfig: GuildConfigData = {
+    embedColor: 0xbd00ff,
+}
+
+export async function getConfig(
+    guildId: string
+): Promise<GuildConfigData | null> {
+    const dbConfig = await configCache.wrap(guildId, async () =>
+        db.guildConfig.findFirst({ where: { id: guildId } })
+    )
+
+    if (dbConfig) {
+        const json = JSON.parse(dbConfig.config!.toString())
+        return { ...defaultConfig, ...json }
+    } else {
+        db.guildConfig.create({
+            data: {
+                config: JSON.stringify(defaultConfig),
+                id: guildId,
+            },
+        })
+        return defaultConfig
     }
 }
