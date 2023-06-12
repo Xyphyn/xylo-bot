@@ -1,12 +1,9 @@
 import { SlashCommand } from '@commands/command.js'
 import {
     ActionRowBuilder,
-    ApplicationCommandChoicesOption,
     ApplicationCommandOptionType,
-    ButtonInteraction,
     ComponentType,
     EmbedBuilder,
-    SelectMenuType,
     StringSelectMenuBuilder,
 } from 'discord.js'
 import { Translator, TargetLanguageCode } from 'deepl-node'
@@ -49,6 +46,7 @@ enum LanguageEmojis {
     'lv' = '🇱🇻',
 }
 
+// eslint-disable-next-line
 function keyFromValue(object: any, value: any) {
     return Object.keys(object).find((key) => object[key] === value)
 }

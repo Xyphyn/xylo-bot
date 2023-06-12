@@ -13,7 +13,6 @@ import {
     PermissionsBitField,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js'
 import { registerInteractionListener } from 'events/interaction.js'
 import { sendError, sendSuccess } from 'util/embed.js'

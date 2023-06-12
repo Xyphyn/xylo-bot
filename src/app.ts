@@ -1,13 +1,9 @@
 import {
     ActivityType,
-    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     GatewayIntentBits,
-    GuildMember,
-    Interaction,
     PermissionsBitField,
-    SlashCommandBuilder,
 } from 'discord.js'
 import ora from 'ora'
 import {
@@ -66,11 +62,11 @@ client.on('interactionCreate', async (interaction) => {
             cooldowns.set(command.metadata.name, new Map())
         }
 
-        if (command.botpermission) {
+        if (command.botpermission != undefined) {
             if (
-                !interaction.guild?.members.me?.permissions.has(
+                interaction.guild?.members.me?.permissions.has(
                     command.botpermission
-                )
+                ) == false
             ) {
                 interaction.reply({
                     ephemeral: true,
@@ -178,46 +174,40 @@ const exceptionEmbed = (err: Error) =>
 client.on('error', (err) => {
     console.error(err)
 
-    if (process.env.LOG_CHANNEL) {
-        const channel = client.channels
-            .fetch(process.env.LOG_CHANNEL)
-            .then((channel) => {
-                if (channel?.isTextBased()) {
-                    channel.send({ embeds: [exceptionEmbed(err)] })
-                }
-            })
+    if (process.env.LOG_CHANNEL!) {
+        client.channels.fetch(process.env.LOG_CHANNEL).then((channel) => {
+            if (channel?.isTextBased()) {
+                channel.send({ embeds: [exceptionEmbed(err)] })
+            }
+        })
     }
 })
 
-process.on('unhandledRejection', (err: any) => {
+process.on('unhandledRejection', (err: Error) => {
     console.log(err)
 
     if (process.env.LOG_CHANNEL) {
-        const channel = client.channels
-            .fetch(process.env.LOG_CHANNEL)
-            .then((channel) => {
-                if (channel?.isTextBased()) {
-                    channel.send({ embeds: [exceptionEmbed(err)] })
-                }
-            })
+        client.channels.fetch(process.env.LOG_CHANNEL).then((channel) => {
+            if (channel?.isTextBased()) {
+                channel.send({ embeds: [exceptionEmbed(err)] })
+            }
+        })
     }
 })
 
-process.on('uncaughtException', (err: any) => {
+process.on('uncaughtException', (err: Error) => {
     console.log(err)
 
     if (process.env.LOG_CHANNEL) {
-        const channel = client.channels
-            .fetch(process.env.LOG_CHANNEL)
-            .then((channel) => {
-                if (channel?.isTextBased()) {
-                    channel.send({ embeds: [exceptionEmbed(err)] })
-                }
-            })
+        client.channels.fetch(process.env.LOG_CHANNEL).then((channel) => {
+            if (channel?.isTextBased()) {
+                channel.send({ embeds: [exceptionEmbed(err)] })
+            }
+        })
     }
 })
 
-process.on('SIGINT', (signal) => {
+process.on('SIGINT', () => {
     console.log('\nGracefully shutting down...')
     client.destroy()
     process.exit(0)

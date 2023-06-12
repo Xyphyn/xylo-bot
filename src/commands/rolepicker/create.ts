@@ -103,7 +103,7 @@ export default {
             ['title', 'description', 'unique']
         )
 
-        let unique = uniqueText?.toLowerCase() == 'true' ? true : false
+        const unique = uniqueText?.toLowerCase() == 'true' ? true : false
 
         const message = await interaction.channel
             .send({

@@ -1,9 +1,7 @@
-import { SlashCommand, SlashSubcommand } from '@commands/command.js'
+import { SlashSubcommand } from '@commands/command.js'
 import { Color } from '@config/config.js'
 import {
-    ActionRowBuilder,
     ApplicationCommandOptionType,
-    ButtonBuilder,
     ButtonStyle,
     ComponentType,
     EmbedBuilder,
@@ -30,10 +28,6 @@ function beats(choice1: RPSChoice, choice2: RPSChoice): boolean {
         (choice1 === 'paper' && choice2 === 'rock') ||
         (choice1 === 'scissors' && choice2 === 'paper')
     )
-}
-
-function capitalizeFirstLetter(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 export default {
@@ -88,7 +82,7 @@ export default {
             ],
         })
 
-        let embed = new EmbedBuilder({
+        const embed = new EmbedBuilder({
             title: 'Rock paper scissors',
             description: 'Choose one wisely...',
             color: Color.primary,

@@ -8,29 +8,21 @@ import { Color } from '@config/config.js'
 import { db } from 'app.js'
 import {
     ActionRowBuilder,
-    ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
     ComponentType,
     EmbedBuilder,
-    ModalBuilder,
     RoleSelectMenuBuilder,
     RoleSelectMenuInteraction,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
     StringSelectMenuOptionBuilder,
-    TextInputBuilder,
     TextInputStyle,
 } from 'discord.js'
 import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 import { sendError, sendSuccess } from 'util/embed.js'
-import {
-    awaitModal,
-    makeModal,
-    modalRows,
-    parseModalFields,
-} from 'util/modal.js'
+import { awaitModal, makeModal, parseModalFields } from 'util/modal.js'
 import { isEmoji, getEmoji } from 'emoji-info'
 
 export async function editRolePickerRole(
@@ -413,7 +405,7 @@ export async function editRolePickerRoles(
             .editReply({
                 components: [asDisabled(actions)],
             })
-            .catch((_) => {})
+            .catch((_) => undefined)
     })
 }
 

@@ -1,9 +1,8 @@
-import { client } from 'app.js'
 import { Interaction } from 'discord.js'
 
 interface InteractionListener {
     filter: (interaction: Interaction) => boolean
-    execute: (Interaction: Interaction) => any
+    execute: (Interaction: Interaction) => void
 }
 
 // For buttons, selections, and other stuff that needs to persist throughout
