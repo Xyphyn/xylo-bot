@@ -53,7 +53,7 @@ export async function refreshUser(
 export const server = express()
 
 server.use(express.json())
-server.use('/gated*')
+server.use('/gated*', gated.middleware)
 
 server.get('/gated', gated.gated)
 server.get('/gated/me', gated.me)
