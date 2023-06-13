@@ -1,4 +1,3 @@
-import { GuildConfig } from '@prisma/client'
 import { db } from 'app.js'
 import { caching } from 'cache-manager'
 

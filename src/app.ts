@@ -18,6 +18,7 @@ import { BotEmoji, Color } from '@config/config.js'
 import { PrismaClient } from '@prisma/client'
 import interactionHandler from 'events/interaction.js'
 import { sendError } from 'util/embed.js'
+import { server } from 'server/server.js'
 
 // starting stuff
 dotenv()
@@ -41,6 +42,12 @@ await client.login(process.env.DISCORD_TOKEN)
 export const db = new PrismaClient()
 
 spinner.succeed(`${chalk.green(`Started in ${Date.now() - startTime}ms`)}`)
+
+server.listen(process.env.API_PORT ?? 6060)
+
+ora({
+    text: chalk.green(`API listening on port ${process.env.API_PORT ?? 6060}`),
+}).succeed()
 
 client.user?.setActivity(
     `${client.guilds.cache.size} guild${
