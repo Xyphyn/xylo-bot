@@ -3,7 +3,7 @@ services:
   db:
     image: mariadb
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 15
@@ -22,9 +22,11 @@ services:
         condition: service_healthy
     environment:
       MARIADB_URL: mysql://root:mariadb@db:3306/xylo_bot
+    expose:
+      - 6060
     restart: unless-stopped
     env_file: .env
     read_only: true
-    
+
 volumes:
   mariadb_data:
