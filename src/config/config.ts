@@ -53,14 +53,16 @@ export async function refreshConfig(guildId: string): Promise<GuildConfigData> {
 
     if (data) {
         const json = JSON.parse(data.config!.toString())
+        await configCache.set(guildId, data)
         return { ...defaultConfig, ...json }
     } else {
-        db.guildConfig.create({
+        const result = await db.guildConfig.create({
             data: {
                 config: JSON.stringify(defaultConfig),
                 id: guildId,
             },
         })
+        await configCache.set(guildId, result)
         return defaultConfig
     }
 }
