@@ -69,7 +69,7 @@ server.post('/gated/me/refresh', async function (req, res) {
     return res.status(200).json(user)
 })
 
-server.get('/gated/:guildId', guild.guild)
+server.get('/gated/guild/:guildId', guild.guild)
 server.get('/ping', async function (req, res) {
     const token = req.header('authorization')
 

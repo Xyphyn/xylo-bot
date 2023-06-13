@@ -27,9 +27,7 @@ const defaultConfig: GuildConfigData = {
     embedColor: 0xbd00ff,
 }
 
-export async function getConfig(
-    guildId: string
-): Promise<GuildConfigData | null> {
+export async function getConfig(guildId: string): Promise<GuildConfigData> {
     const dbConfig = await configCache.wrap(guildId, async () =>
         db.guildConfig.findFirst({ where: { id: guildId } })
     )
