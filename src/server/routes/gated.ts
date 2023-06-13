@@ -41,10 +41,7 @@ export default {
         const user: AuthUser = res.locals.user
 
         return res.status(200).json({
-            data: {
-                username: user.username,
-                guilds: user.guilds.filter((guild) => guild.owner),
-            },
+            user,
         })
     },
 }

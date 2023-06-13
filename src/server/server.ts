@@ -5,6 +5,7 @@ import chalk from 'chalk'
 import { AuthUser } from 'server/routes/gated.js'
 import gated from 'server/routes/gated.js'
 import guild from 'server/routes/guild.js'
+import cors from 'cors'
 
 const oauth = new OAuth({})
 const userCache = await caching('memory', {
@@ -53,6 +54,7 @@ export async function refreshUser(
 export const server = express()
 
 server.use(express.json())
+server.use(cors())
 server.use('/gated*', gated.middleware)
 
 server.get('/gated', gated.gated)
@@ -64,7 +66,24 @@ server.post('/gated/me/refresh', async function (req, res) {
         return
     }
 
-    res.status(200).json(user)
+    return res.status(200).json(user)
 })
 
 server.get('/gated/:guildId', guild.guild)
+server.get('/ping', async function (req, res) {
+    const token = req.header('authorization')
+
+    let authorized = false
+
+    if (token) {
+        const user = await fetchUser(token)
+        if (user) {
+            authorized = true
+        }
+    }
+
+    return res.status(200).json({
+        message: 'Pong!',
+        authenticated: authorized,
+    })
+})
