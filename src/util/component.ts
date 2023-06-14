@@ -10,6 +10,7 @@ import {
     StringSelectMenuOptionBuilder,
     User,
 } from 'discord.js'
+import { sendError } from 'util/embed.js'
 
 // these are only used for makeRow
 // i'm copying go's style and using a lowercase for
@@ -111,7 +112,21 @@ export async function awaitInteraction<T extends MessageComponentType>({
 }) {
     return await message
         .awaitMessageComponent<T>({
-            filter: (int) => int.user.id == user.id,
+            filter: (int) => {
+                if (int.user.id != user.id) {
+                    int.reply({
+                        embeds: [
+                            sendError(
+                                `That interaction doesn't belong to you.`
+                            ),
+                        ],
+                    })
+
+                    return false
+                }
+
+                return true
+            },
             idle: 60 * 1000,
             dispose: true,
         })
