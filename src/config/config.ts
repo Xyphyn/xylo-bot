@@ -21,6 +21,7 @@ const configCache = await caching('memory', {
 
 export interface GuildConfigData {
     embedColor: number
+    logChannel?: string
 }
 
 const defaultConfig: GuildConfigData = {

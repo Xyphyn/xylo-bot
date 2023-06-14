@@ -17,12 +17,12 @@ export default {
     ) {
         const token = req.header('authorization')
         if (!token) {
-            return res.sendStatus(403)
+            return res.sendStatus(401)
         }
 
         const user = await fetchUser(token)
         if (!user) {
-            return res.sendStatus(403)
+            return res.sendStatus(401)
         }
 
         res.locals.user = user

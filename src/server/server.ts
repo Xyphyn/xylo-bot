@@ -6,8 +6,9 @@ import { AuthUser } from 'server/routes/gated.js'
 import gated from 'server/routes/gated.js'
 import guild from 'server/routes/guild.js'
 import cors from 'cors'
+import { client } from 'app.js'
 
-const oauth = new OAuth({})
+export const oauth = new OAuth({})
 const userCache = await caching('memory', {
     ttl: 10 * 60 * 1000,
     max: 300,
@@ -18,7 +19,11 @@ export async function fetchUser(token: string): Promise<AuthUser | undefined> {
         .wrap(token, async () => {
             const start = Date.now()
             const user = await oauth.getUser(token)
-            const guilds = await oauth.getUserGuilds(token)
+            const guilds = (await oauth.getUserGuilds(token))
+                .filter((guild) =>
+                    client.guilds.cache.map((g) => g.id).includes(guild.id)
+                )
+                .filter((guild) => guild.owner)
             console.log(
                 chalk.blue(
                     `☁️ Fetched user ${chalk.bold(
@@ -28,7 +33,10 @@ export async function fetchUser(token: string): Promise<AuthUser | undefined> {
                     )}s`
                 )
             )
-            return { guilds: guilds, ...user }
+            return {
+                guilds: guilds,
+                ...user,
+            }
         })
         .catch((_) => undefined)
 }
@@ -38,7 +46,11 @@ export async function refreshUser(
 ): Promise<AuthUser | undefined> {
     const start = Date.now()
     const user = await oauth.getUser(token)
-    const guilds = await oauth.getUserGuilds(token)
+    const guilds = (await oauth.getUserGuilds(token))
+        .filter((guild) =>
+            client.guilds.cache.map((g) => g.id).includes(guild.id)
+        )
+        .filter((guild) => guild.owner)
 
     console.log(
         chalk.blue(
@@ -56,6 +68,12 @@ export const server = express()
 server.use(express.json())
 server.use(cors())
 server.use('/gated*', gated.middleware)
+server.use('/gated/guild/:guildId*', guild.middleware)
+// eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-explicit-any
+server.use((err: any, req: any, res: any, next: any) => {
+    console.error(err)
+    res.sendStatus(500)
+})
 
 server.get('/gated', gated.gated)
 server.get('/gated/me', gated.me)
@@ -70,6 +88,7 @@ server.post('/gated/me/refresh', async function (req, res) {
 })
 
 server.get('/gated/guild/:guildId', guild.guild)
+server.get('/gated/guild/:guildId/channels', guild.channels)
 server.post('/gated/guild/:guildId/config', guild.config)
 server.get('/ping', async function (req, res) {
     const token = req.header('authorization')
