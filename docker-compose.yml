@@ -2,28 +2,20 @@ version: '3'
 services:
   db:
     image: mariadb
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 10s
-      timeout: 5s
-      retries: 15
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: xylo_bot
       MYSQL_ROOT_PASSWORD: mariadb
-    expose:
-      - "3306"
     volumes:
       - mariadb_data:/var/lib/mysql/data
   app:
     build: .
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       MARIADB_URL: mysql://root:mariadb@db:3306/xylo_bot
-    expose:
-      - 6060
+    ports:
+      - "6060:6060"
     restart: unless-stopped
     env_file: .env
     read_only: true
