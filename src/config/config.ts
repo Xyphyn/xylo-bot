@@ -25,7 +25,7 @@ export interface GuildConfigData {
 }
 
 const defaultConfig: GuildConfigData = {
-    embedColor: 0xbd00ff,
+    embedColor: 0xffffff,
 }
 
 export async function getConfig(guildId: string): Promise<GuildConfigData> {
