@@ -40,7 +40,7 @@ export const client = new Client({
 await registerCommands()
 await client.login(process.env.DISCORD_TOKEN)
 export const db = new PrismaClient()
-
+await db.$connect()
 spinner.succeed(`${chalk.green(`Started in ${Date.now() - startTime}ms`)}`)
 
 server.listen(process.env.API_PORT ?? 6060)
