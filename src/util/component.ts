@@ -120,6 +120,7 @@ export async function awaitInteraction<T extends MessageComponentType>({
                                 `That interaction doesn't belong to you.`
                             ),
                         ],
+                        ephemeral: true,
                     })
 
                     return false
