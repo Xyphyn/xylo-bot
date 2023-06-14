@@ -1,16 +1,16 @@
 import { SlashSubcommand } from '@commands/command.js'
 import { db } from 'app.js'
-import { ApplicationCommandOptionType } from 'discord.js'
-import { sendError, sendSuccess } from 'util/embed.js'
+import { ApplicationCommandOptionType, Guild } from 'discord.js'
+import { log, sendError, sendSuccess } from 'util/messaging.js'
 
-export async function deleteWarning(id: number, guildId: string) {
+export async function deleteWarning(id: number, guild: Guild) {
     const warning = await db.warning.findFirst({
         where: {
             id: id,
         },
     })
 
-    if (!warning || warning.guild_id != guildId) {
+    if (!warning || warning.guild_id != guild.id) {
         return sendError(`That warning did not take place in this guild.`)
     }
 
@@ -20,7 +20,11 @@ export async function deleteWarning(id: number, guildId: string) {
         },
     })
 
-    return sendSuccess(`Warning of ID \`${id}\` has been deleted.`)
+    const embed = sendSuccess(`Warning of ID \`${id}\` has been deleted.`)
+
+    log(guild, embed)
+
+    return embed
 }
 
 export default {
@@ -56,7 +60,7 @@ export default {
         await interaction.deferReply({ ephemeral: silent })
 
         await interaction.editReply({
-            embeds: [await deleteWarning(id, interaction.guildId!)],
+            embeds: [await deleteWarning(id, interaction.guild!)],
         })
     },
 } as SlashSubcommand

@@ -6,7 +6,7 @@ import {
     GuildMember,
 } from 'discord.js'
 import ms from 'ms'
-import { sendError } from 'util/embed.js'
+import { log, sendError } from 'util/messaging.js'
 
 export async function mute(
     member: GuildMember,
@@ -109,6 +109,8 @@ export default {
         }
 
         const embed = await mute(member, timeoutMs, reason)
+
+        log(interaction.guild!, embed)
 
         await interaction.editReply({
             embeds: [embed],

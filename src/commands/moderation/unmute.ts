@@ -5,6 +5,7 @@ import {
     EmbedBuilder,
     GuildMember,
 } from 'discord.js'
+import { log } from 'util/messaging.js'
 
 export default {
     metadata: {
@@ -45,6 +46,8 @@ export default {
             .setTitle('Unmute')
             .setDescription(`${BotEmoji.success} <@${member.id}> was unmuted.`)
             .setColor(Color.success)
+
+        log(interaction.guild, embed)
 
         await interaction.editReply({
             embeds: [embed],

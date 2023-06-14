@@ -15,7 +15,7 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js'
 import { registerInteractionListener } from 'events/interaction.js'
-import { sendError, sendSuccess } from 'util/embed.js'
+import { sendError, sendSuccess } from 'util/messaging.js'
 import { Color } from '@config/config.js'
 import { asDisabled } from 'util/component.js'
 import {

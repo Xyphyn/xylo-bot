@@ -8,7 +8,7 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
 } from 'discord.js'
-import { sendError, sendSuccess } from 'util/embed.js'
+import { sendError, sendSuccess } from 'util/messaging.js'
 import { awaitModal, makeModal, parseModalFields } from 'util/modal.js'
 
 export async function editRolePicker(

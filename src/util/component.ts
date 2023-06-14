@@ -10,7 +10,7 @@ import {
     StringSelectMenuOptionBuilder,
     User,
 } from 'discord.js'
-import { sendError } from 'util/embed.js'
+import { sendError } from 'util/messaging.js'
 
 // these are only used for makeRow
 // i'm copying go's style and using a lowercase for

@@ -6,7 +6,7 @@ import {
     EmbedBuilder,
 } from 'discord.js'
 import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
-import { sendError } from 'util/embed.js'
+import { sendError } from 'util/messaging.js'
 
 export default {
     metadata: {

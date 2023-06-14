@@ -17,17 +17,15 @@ import rolepicker from '@commands/rolepicker/rolepicker.js'
 import fun from '@commands/fun/fun.js'
 import poll from '@commands/poll/poll.js'
 
-export interface SlashCommand {
-    metadata: ChatInputApplicationCommandData
+export interface Command {
     permission?: bigint
     botpermission?: PermissionResolvable
     // The cooldown (in millis)
     cooldown?: number
-    /**
-     * A filter if the command should be registered.
-     */
-    filter?: () => boolean
+}
 
+export interface SlashCommand extends Command {
+    metadata: ChatInputApplicationCommandData
     execute: ({
         interaction,
         client,
@@ -37,7 +35,7 @@ export interface SlashCommand {
     }) => Promise<boolean | void>
 }
 
-export interface SlashSubcommand {
+export interface SlashSubcommand extends Command {
     metadata: {
         type: ApplicationCommandOptionType.Subcommand
         name: string
@@ -62,7 +60,15 @@ export interface SlashCommandAutocomplete {
 
 export const cooldowns = new Map<string, Map<string, number>>()
 
-const commandList = [ping, moderation, translate, color, rolepicker, fun, poll]
+const commandList: SlashCommand[] = [
+    ping,
+    moderation,
+    translate,
+    color,
+    rolepicker,
+    fun,
+    poll,
+]
 
 export const commands = new Map<string, SlashCommand>(
     commandList.map((command) => [command.metadata.name, command])
@@ -78,9 +84,7 @@ export async function registerCommands(): Promise<boolean> {
         await rest.put(
             Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
             {
-                body: commandList
-                    .filter((c) => c.filter?.() ?? true)
-                    .map((c) => c.metadata),
+                body: commandList.map((c: SlashCommand) => c.metadata),
             }
         )
     } catch (error) {

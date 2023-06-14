@@ -9,7 +9,7 @@ import {
 } from 'discord.js'
 import { mute } from './mute.js'
 import { deleteWarning } from '@commands/moderation/delwarn.js'
-import { sendError } from 'util/embed.js'
+import { log, sendError } from 'util/messaging.js'
 import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
 
 export default {
@@ -102,6 +102,8 @@ export default {
             components: [actionRow],
         })
 
+        log(interaction.guild, embed)
+
         try {
             await user.send({
                 embeds: [
@@ -170,7 +172,7 @@ export default {
         await int.deferReply({ ephemeral: silent })
 
         await int.editReply({
-            embeds: [await deleteWarning(warning.id, warning.guild_id)],
+            embeds: [await deleteWarning(warning.id, interaction.guild)],
         })
 
         await interaction.editReply({

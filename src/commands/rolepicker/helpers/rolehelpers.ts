@@ -21,7 +21,7 @@ import {
     TextInputStyle,
 } from 'discord.js'
 import { asDisabled, awaitInteraction, makeRow } from 'util/component.js'
-import { sendError, sendSuccess } from 'util/embed.js'
+import { sendError, sendSuccess } from 'util/messaging.js'
 import { awaitModal, makeModal, parseModalFields } from 'util/modal.js'
 import { isEmoji, getEmoji } from 'emoji-info'
 

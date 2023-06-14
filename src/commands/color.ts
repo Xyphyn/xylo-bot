@@ -1,9 +1,6 @@
 import { SlashCommand } from '@commands/command.js'
-import {
-    ApplicationCommandOptionType,
-    EmbedBuilder,
-} from 'discord.js'
-import { sendError } from 'util/embed.js'
+import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
+import { sendError } from 'util/messaging.js'
 
 function hexToRgb(hex: string): [number, number, number] {
     const hexWithoutHash = hex.replace('#', '')
