@@ -1,4 +1,3 @@
-import { GuildConfig } from '@prisma/client'
 import { db } from 'app.js'
 import { caching } from 'cache-manager'
 
@@ -20,31 +19,51 @@ const configCache = await caching('memory', {
     ttl: 60 * 1000,
 })
 
-interface GuildConfigData {
+export interface GuildConfigData {
     embedColor: number
+    logChannel?: string
 }
 
 const defaultConfig: GuildConfigData = {
     embedColor: 0xbd00ff,
 }
 
-export async function getConfig(
-    guildId: string
-): Promise<GuildConfigData | null> {
-    const dbConfig = await configCache.wrap(guildId, async () =>
-        db.guildConfig.findFirst({ where: { id: guildId } })
+export async function getConfig(guildId: string): Promise<GuildConfigData> {
+    const dbConfig = await configCache.wrap(
+        guildId,
+        async () => await db.guildConfig.findFirst({ where: { id: guildId } })
     )
 
     if (dbConfig) {
         const json = JSON.parse(dbConfig.config!.toString())
         return { ...defaultConfig, ...json }
     } else {
-        db.guildConfig.create({
+        const result = await db.guildConfig.create({
             data: {
                 config: JSON.stringify(defaultConfig),
                 id: guildId,
             },
         })
+        await configCache.set(guildId, result)
+        return defaultConfig
+    }
+}
+
+export async function refreshConfig(guildId: string): Promise<GuildConfigData> {
+    const data = await db.guildConfig.findFirst({ where: { id: guildId } })
+
+    if (data) {
+        const json = JSON.parse(data.config!.toString())
+        await configCache.set(guildId, data)
+        return { ...defaultConfig, ...json }
+    } else {
+        const result = await db.guildConfig.create({
+            data: {
+                config: JSON.stringify(defaultConfig),
+                id: guildId,
+            },
+        })
+        await configCache.set(guildId, result)
         return defaultConfig
     }
 }
