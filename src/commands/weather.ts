@@ -5,25 +5,6 @@ import { sendError } from 'util/messaging.js'
 const baseUrl = 'https://api.open-meteo.com/v1/forecast'
 const searchUrl = 'https://geocoding-api.open-meteo.com/v1'
 
-const closestDate = function (dates: Date[], target: Date | number) {
-    if (!target) target = Date.now()
-    else if (target instanceof Date) target = target.getTime()
-
-    let nearest = Infinity
-    let winner = -1
-
-    dates.forEach(function (date: Date | number, index) {
-        if (date instanceof Date) date = date.getTime()
-        let distance = Math.abs(date - (target as number))
-        if (distance < nearest) {
-            nearest = distance
-            winner = index
-        }
-    })
-
-    return winner
-}
-
 interface searchResult {
     id: number
     name: string
@@ -76,12 +57,6 @@ function getColor(input: number): number {
         16
     )
 }
-
-const prettyDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-gb', {
-        hour: '2-digit',
-        minute: '2-digit',
-    })
 
 export default {
     cooldown: 30 * 1000,
@@ -138,6 +113,8 @@ export default {
         // maybe i should've just had only celcius as an option
         // and force the 'muricans to use sane units
 
+        // update: i did it
+
         if (!match) {
             await interaction.reply({
                 embeds: [sendError(`Invalid location.`)],
@@ -145,8 +122,6 @@ export default {
             })
             return
         }
-
-        const unitOption = interaction.options.getString('units') ?? 'celcius'
 
         const unit = '°C'
 
@@ -194,12 +169,16 @@ export default {
                 },
                 {
                     name: 'Sunrise',
-                    value: prettyDate(data.daily.sunrise[0]),
+                    value: `<t:${Math.floor(
+                        new Date(data.daily.sunset[0]).getTime() / 1000
+                    )}:t>`,
                     inline: true,
                 },
                 {
                     name: 'Sunset',
-                    value: prettyDate(data.daily.sunset[0]),
+                    value: `<t:${Math.floor(
+                        new Date(data.daily.sunset[0]).getTime() / 1000
+                    )}:t>`,
                     inline: true,
                 },
             ],
