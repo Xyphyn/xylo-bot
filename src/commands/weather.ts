@@ -170,7 +170,7 @@ export default {
                 {
                     name: 'Sunrise',
                     value: `<t:${Math.floor(
-                        new Date(data.daily.sunset[0]).getTime() / 1000
+                        new Date(data.daily.sunrise[0]).getTime() / 1000
                     )}:t>`,
                     inline: true,
                 },
