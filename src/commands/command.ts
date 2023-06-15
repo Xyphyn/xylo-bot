@@ -16,6 +16,7 @@ import color from '@commands/color.js'
 import rolepicker from '@commands/rolepicker/rolepicker.js'
 import fun from '@commands/fun/fun.js'
 import poll from '@commands/poll/poll.js'
+import weather from '@commands/weather.js'
 
 export interface Command {
     permission?: bigint
@@ -68,6 +69,7 @@ const commandList: SlashCommand[] = [
     rolepicker,
     fun,
     poll,
+    weather,
 ]
 
 export const commands = new Map<string, SlashCommand>(
