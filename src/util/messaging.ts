@@ -35,10 +35,10 @@ export const sendInfo = (message: string) =>
 
 export async function log(guild: Guild, embed: EmbedBuilder) {
     const config = await getConfig(guild.id)
-    if (!config || !config.logChannel) return
+    if (!config || !config.logging || !config.logging.channel) return
 
     const channel = await client.channels
-        .fetch(config.logChannel)
+        .fetch(config.logging.channel)
         .catch((_) => undefined)
     if (!channel || !channel.isTextBased()) return
 

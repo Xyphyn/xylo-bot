@@ -21,11 +21,17 @@ const configCache = await caching('memory', {
 
 export interface GuildConfigData {
     embedColor: number
-    logChannel?: string
+    logging: {
+        enabled: boolean
+        channel?: string
+    }
 }
 
 const defaultConfig: GuildConfigData = {
     embedColor: 0xffffff,
+    logging: {
+        enabled: false,
+    },
 }
 
 export async function getConfig(guildId: string): Promise<GuildConfigData> {

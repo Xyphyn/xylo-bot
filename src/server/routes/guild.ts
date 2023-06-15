@@ -59,7 +59,10 @@ export default {
 
         const GuildConfigData = t.type({
             embedColor: t.number,
-            logChannel: t.union([t.string, t.undefined]),
+            logging: t.type({
+                enabled: t.boolean,
+                channel: t.union([t.string, t.undefined]),
+            }),
         })
 
         const decoded = GuildConfigData.decode(data)
