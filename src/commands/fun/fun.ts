@@ -18,6 +18,8 @@ export default {
         options: subcommands.map((sc) => sc.metadata),
     },
 
+    cooldown: 5000,
+
     async execute(args) {
         const command =
             subcommands.find(

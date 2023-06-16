@@ -1,6 +1,6 @@
 import { SlashSubcommand } from '@commands/command.js'
 import { Color } from '@config/config.js'
-import { RatherGame } from '@prisma/client'
+import { Prisma, RatherGame } from '@prisma/client'
 import { db } from 'app.js'
 import {
     ActionRowBuilder,
@@ -8,6 +8,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     EmbedBuilder,
+    Guild,
 } from 'discord.js'
 import { asDisabled, awaitInteraction } from 'util/component.js'
 
@@ -31,15 +32,24 @@ async function retryFetch(url: string, tries = 5) {
 }
 
 async function fetchQuestion(
-    fromDb = false
+    fromDb = false,
+    guildOnly?: boolean,
+    guild?: Guild
 ): Promise<ratherResponse | undefined> {
     if (fromDb) {
         // Prisma doesn't support getting random, so I guess this'll have to do.
-        const question = await db.$queryRaw<RatherGame[] | undefined>`SELECT *
-        FROM RatherGame
-        WHERE public = true
-        ORDER BY RAND()
-        LIMIT 1;`
+
+        let query: Prisma.Sql
+        // Using an == true because it can be undefined.
+        if (guildOnly == true && guild) {
+            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND guild_id = ${guild.id}`
+        } else if (guildOnly == false && guild) {
+            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND NOT guild_id = ${guild.id}`
+        } else {
+            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND guild_id IS NULL`
+        }
+
+        const question = await db.$queryRaw<RatherGame[] | undefined>(query)
 
         if (question && question[0]) {
             return {
@@ -83,6 +93,13 @@ export default {
                 type: ApplicationCommandOptionType.String,
                 required: false,
             },
+            {
+                name: 'guildonly',
+                description:
+                    'True: get from this guild. False: get from not this guild. Empty: get from no guild',
+                type: ApplicationCommandOptionType.Boolean,
+                required: false,
+            },
         ],
     },
 
@@ -91,6 +108,7 @@ export default {
     async execute({ interaction }) {
         const fromDb =
             (interaction.options.getString('source') || 'true') == 'true'
+        const guildOnly = interaction.options.getBoolean('guildonly')
 
         const makeRow = (...buttons: ButtonBuilder[]) =>
             new ActionRowBuilder<ButtonBuilder>().setComponents(buttons)
@@ -124,7 +142,11 @@ export default {
                 customId: 'option2',
             })
 
-            const res: ratherResponse | undefined = await fetchQuestion(fromDb)
+            const res: ratherResponse | undefined = await fetchQuestion(
+                fromDb,
+                guildOnly as boolean | undefined,
+                interaction.guild as Guild | undefined
+            )
 
             if (!res) {
                 break

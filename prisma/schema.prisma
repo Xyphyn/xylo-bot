@@ -14,7 +14,7 @@ model Warning {
   id       Int      @id @default(autoincrement())
   user_id  String
   guild_id String
-  reason   String
+  reason   String   @db.Text
   time     DateTime @default(now())
 }
 
@@ -37,8 +37,8 @@ model RoleSelector {
 model RoleSelectorValues {
   id             Int          @id @default(autoincrement())
   role_id        String
-  label          String
-  description    String?
+  label          String       @db.TinyText
+  description    String?      @db.TinyText
   emoji          String?
   RoleSelector   RoleSelector @relation(fields: [roleSelectorId], references: [id])
   roleSelectorId Int
@@ -48,8 +48,8 @@ model RatherGame {
   id           Int     @id @default(autoincrement())
   public       Boolean @default(false)
   guild_id     String?
-  option1      String
-  option2      String
+  option1      String  @db.VarChar(600)
+  option2      String  @db.VarChar(600)
   option1votes Int     @default(0)
   option2votes Int     @default(0)
 }

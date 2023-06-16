@@ -101,7 +101,7 @@ export default {
     async execute({ interaction }) {
         const option1 = interaction.options.getString('option1')!
         const option2 = interaction.options.getString('option2')!
-        const guildOnly = interaction.options.getBoolean('guildOnly')
+        const guildOnly = interaction.options.getBoolean('guildonly')
 
         if (!process.env.STAFF_CHANNEL) {
             await interaction.reply({
@@ -122,7 +122,8 @@ export default {
             data: {
                 option1: option1,
                 option2: option2,
-                guild_id: guildOnly ? interaction.guild?.id : null,
+                guild_id:
+                    guildOnly != undefined ? interaction.guild?.id : undefined,
                 public: false,
             },
         })
