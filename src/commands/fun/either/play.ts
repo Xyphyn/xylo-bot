@@ -72,11 +72,11 @@ export default {
                 description: 'Whether to get the questions from Xylo or an API',
                 choices: [
                     {
-                        name: 'Xylo',
+                        name: 'Xylo (User-submitted)',
                         value: 'true',
                     },
                     {
-                        name: 'wouldurather.io',
+                        name: 'wouldurather.io (Random)',
                         value: 'false',
                     },
                 ],
@@ -89,7 +89,8 @@ export default {
     cooldown: 15 * 1000,
 
     async execute({ interaction }) {
-        const fromDb = interaction.options.getString('source') == 'true'
+        const fromDb =
+            (interaction.options.getString('source') || 'true') == 'true'
 
         const makeRow = (...buttons: ButtonBuilder[]) =>
             new ActionRowBuilder<ButtonBuilder>().setComponents(buttons)
