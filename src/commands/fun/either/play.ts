@@ -157,11 +157,11 @@ export default {
                 fields: [
                     {
                         name: 'Option 1',
-                        value: ` **${res.option1}**`,
+                        value: ` ${res.option1}`,
                     },
                     {
                         name: 'Option 2',
-                        value: `**${res.option2}**`,
+                        value: `${res.option2}`,
                     },
                 ],
                 color: Color.primary,
