@@ -79,14 +79,14 @@ export default {
                 description: 'The first choice.',
                 type: ApplicationCommandOptionType.String,
                 required: true,
-                maxLength: 512,
+                max_length: 512,
             },
             {
                 name: 'option2',
                 description: 'The second choice.',
                 type: ApplicationCommandOptionType.String,
                 required: true,
-                maxLength: 512,
+                max_length: 512,
             },
             {
                 name: 'guildonly',
@@ -101,6 +101,20 @@ export default {
     async execute({ interaction }) {
         const option1 = interaction.options.getString('option1')!
         const option2 = interaction.options.getString('option2')!
+
+        if (option1.length > 512 || option2.length > 512) {
+            await interaction.reply({
+                ephemeral: true,
+                embeds: [
+                    sendError(
+                        `The options must be less than 512 characters. I set the max length to 512, how did you even manage to run it with this?`
+                    ),
+                ],
+            })
+
+            return
+        }
+
         const guildOnly = interaction.options.getBoolean('guildonly')
 
         if (!process.env.STAFF_CHANNEL) {
