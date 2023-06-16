@@ -79,7 +79,7 @@ export default {
                 type: ApplicationCommandOptionType.String,
                 name: 'text',
                 description: 'The text to translate.',
-                maxLength: 512,
+                max_length: 512,
                 required: true,
             },
             {

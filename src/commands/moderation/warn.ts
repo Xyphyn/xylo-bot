@@ -29,7 +29,7 @@ export default {
                 description: 'Why are they being warned?',
                 required: false,
                 name: 'reason',
-                maxLength: 512,
+                max_length: 512,
             },
             {
                 type: ApplicationCommandOptionType.Boolean,

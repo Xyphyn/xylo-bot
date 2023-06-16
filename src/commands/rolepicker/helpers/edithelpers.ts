@@ -23,7 +23,7 @@ export async function editRolePicker(
                 style: TextInputStyle.Short,
                 placeholder: 'The title of the embed',
                 id: 'title',
-                maxLength: 128,
+                max_length: 128,
                 required: true,
             },
             {
@@ -31,7 +31,7 @@ export async function editRolePicker(
                 style: TextInputStyle.Paragraph,
                 placeholder: 'The description of the embed',
                 id: 'description',
-                maxLength: 512,
+                max_length: 512,
                 required: true,
             },
             {
@@ -39,8 +39,8 @@ export async function editRolePicker(
                 style: TextInputStyle.Short,
                 placeholder: `1 role at max (true/false) (default: false)`,
                 id: 'unique',
-                maxLength: 5,
-                minLength: 4,
+                max_length: 5,
+                min_length: 4,
                 required: false,
             },
         ],

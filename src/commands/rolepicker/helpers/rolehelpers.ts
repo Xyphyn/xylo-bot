@@ -73,7 +73,7 @@ export async function editRolePickerRole(
                 id: 'label',
                 label: 'Label',
                 value: selectItem.label,
-                maxLength: 100,
+                max_length: 100,
                 required: true,
                 placeholder: 'Epic role',
                 style: TextInputStyle.Short,
@@ -81,7 +81,7 @@ export async function editRolePickerRole(
             {
                 id: 'description',
                 required: false,
-                maxLength: 100,
+                max_length: 100,
                 placeholder: 'A very cool role',
                 style: TextInputStyle.Short,
                 label: 'Description',
@@ -90,7 +90,7 @@ export async function editRolePickerRole(
             {
                 id: 'emoji',
                 required: false,
-                maxLength: 100,
+                max_length: 100,
                 placeholder: ':smiley:',
                 style: TextInputStyle.Short,
                 label: 'Emoji',
@@ -255,7 +255,7 @@ export async function addRolePickerRole(
             {
                 id: 'label',
                 required: true,
-                maxLength: 100,
+                max_length: 100,
                 placeholder: 'Epic role',
                 style: TextInputStyle.Short,
                 label: 'Label',
@@ -263,7 +263,7 @@ export async function addRolePickerRole(
             {
                 id: 'description',
                 required: false,
-                maxLength: 100,
+                max_length: 100,
                 placeholder: 'A very cool role',
                 style: TextInputStyle.Short,
                 label: 'Description',
@@ -271,7 +271,7 @@ export async function addRolePickerRole(
             {
                 id: 'emoji',
                 required: false,
-                maxLength: 100,
+                max_length: 100,
                 placeholder: ':smiley:',
                 style: TextInputStyle.Short,
                 label: 'Emoji',

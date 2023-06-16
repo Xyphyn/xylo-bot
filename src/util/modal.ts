@@ -24,8 +24,8 @@ interface textInput {
     id: string
     label: string
     placeholder: string
-    maxLength?: number
-    minLength?: number
+    max_length?: number
+    min_length?: number
     value?: string
     style: TextInputStyle
     required?: boolean
@@ -54,8 +54,8 @@ export function makeModal({
                 new TextInputBuilder({
                     customId: input.id,
                     label: input.label,
-                    maxLength: input.maxLength,
-                    minLength: input.minLength,
+                    max_length: input.max_length,
+                    min_length: input.min_length,
                     placeholder: input.placeholder,
                     value: input.value,
                     type: ComponentType.TextInput,
