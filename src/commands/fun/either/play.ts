@@ -42,11 +42,11 @@ async function fetchQuestion(
         let query: Prisma.Sql
         // Using an == true because it can be undefined.
         if (guildOnly == true && guild) {
-            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND guild_id = ${guild.id}`
+            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND guild_id = ${guild.id} ORDER BY RAND() LIMIT 1;`
         } else if (guildOnly == false && guild) {
-            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND NOT guild_id = ${guild.id}`
+            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND NOT guild_id = ${guild.id} ORDER BY RAND() LIMIT 1;`
         } else {
-            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND guild_id IS NULL`
+            query = Prisma.sql`SELECT * FROM RatherGame WHERE public = true AND guild_id IS NULL ORDER BY RAND() LIMIT 1;`
         }
 
         const question = await db.$queryRaw<RatherGame[] | undefined>(query)
