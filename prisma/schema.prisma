@@ -43,3 +43,13 @@ model RoleSelectorValues {
   RoleSelector   RoleSelector @relation(fields: [roleSelectorId], references: [id])
   roleSelectorId Int
 }
+
+model RatherGame {
+  id           Int     @id @default(autoincrement())
+  public       Boolean @default(false)
+  guild_id     String?
+  option1      String
+  option2      String
+  option1votes Int     @default(0)
+  option2votes Int     @default(0)
+}

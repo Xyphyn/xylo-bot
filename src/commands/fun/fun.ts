@@ -1,6 +1,6 @@
 import { SlashCommand, SlashCommandAutocomplete } from '@commands/command.js'
 import cat from '@commands/fun/cat.js'
-import either from '@commands/fun/either.js'
+import either from '@commands/fun/either/either.js'
 import imagi from '@commands/fun/imagi.js'
 import reddit from '@commands/fun/reddit.js'
 import rps from '@commands/fun/rps.js'
@@ -19,12 +19,18 @@ export default {
     },
 
     async execute(args) {
-        subcommands
-            .find(
+        const command =
+            subcommands.find(
                 (sc) =>
                     sc.metadata.name == args.interaction.options.getSubcommand()
+            ) ??
+            subcommands.find(
+                (sc) =>
+                    sc.metadata.name ==
+                    args.interaction.options.getSubcommandGroup()
             )
-            ?.execute(args)
+
+        command?.execute(args)
     },
 
     async autocomplete(interaction) {

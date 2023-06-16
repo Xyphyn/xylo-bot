@@ -1,6 +1,6 @@
 import { BotEmoji, Color, getConfig } from '@config/config.js'
 import { client } from 'app.js'
-import { EmbedBuilder, Guild } from 'discord.js'
+import { ActionRowBuilder, EmbedBuilder, Guild } from 'discord.js'
 
 export function sendError(message: string, error?: Error) {
     const embed = new EmbedBuilder()
@@ -56,4 +56,33 @@ export async function log(guild: Guild, embed: EmbedBuilder) {
     } catch (_) {
         // failed to send. Doesn't really matter.
     }
+}
+
+export async function sendStaff(
+    embed: EmbedBuilder,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    components?: ActionRowBuilder<any>,
+    guild?: Guild
+) {
+    if (!process.env.STAFF_CHANNEL) return
+
+    const channel = await client.channels
+        .fetch(process.env.STAFF_CHANNEL)
+        .catch((_) => undefined)
+
+    if (!channel || !channel.isTextBased()) return
+
+    if (guild) {
+        embed.setFooter({
+            text: guild.name,
+            iconURL: guild.iconURL() as string | undefined,
+        })
+    }
+
+    embed.setTimestamp(Date.now())
+
+    const rows = components ? [components] : []
+    await channel
+        .send({ embeds: [embed], components: rows })
+        .catch((_) => undefined)
 }

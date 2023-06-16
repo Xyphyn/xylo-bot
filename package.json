@@ -7,6 +7,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "tsc && tsc-alias && NODE_ENV=development node dist/app.js",
+        "nodemon": "NODE_ENV=development tsx watch src/app.ts",
         "lint": "eslint .",
         "build": "tsc && tsc-alias",
         "build:generate": "prisma generate && npm run build",
@@ -42,8 +43,8 @@
         "eslint": "^8.42.0",
         "eslint-plugin-unused-imports": "^2.0.0",
         "prisma": "^4.14.1",
-        "ts-node": "^10.9.1",
         "tsc-alias": "^1.8.6",
+        "tsx": "^3.12.7",
         "typescript": "^5.0.4"
     }
 }
