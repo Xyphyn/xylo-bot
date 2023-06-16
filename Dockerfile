@@ -12,4 +12,4 @@ EXPOSE 6060
 COPY . .
 
 RUN npm run build:generate
-CMD npm run start:migrate
+CMD ["npm", "run", "start:migrate"]
