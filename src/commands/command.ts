@@ -38,7 +38,9 @@ export interface SlashCommand extends Command {
 
 export interface SlashSubcommand extends Command {
     metadata: {
-        type: ApplicationCommandOptionType.Subcommand
+        type:
+            | ApplicationCommandOptionType.Subcommand
+            | ApplicationCommandOptionType.SubcommandGroup
         name: string
         description: string
         options: ApplicationCommandOptionData[] | undefined

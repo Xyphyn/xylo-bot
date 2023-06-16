@@ -33,6 +33,8 @@ export default {
         type: ApplicationCommandOptionType.Subcommand,
     },
 
+    cooldown: 15 * 1000,
+
     async execute({ interaction }) {
         const makeRow = (...buttons: ButtonBuilder[]) =>
             new ActionRowBuilder<ButtonBuilder>().setComponents(buttons)
@@ -82,7 +84,7 @@ export default {
                 fields: [
                     {
                         name: 'Option 1',
-                        value: `**${res.option1}**`,
+                        value: ` **${res.option1}**`,
                     },
                     {
                         name: 'Option 2',
@@ -122,11 +124,8 @@ export default {
                 )}%`
             )
 
-            if (int.customId == 'option1') {
-                option2.setDisabled(true)
-            } else {
-                option1.setDisabled(true)
-            }
+            if (int.customId == 'option1') option2.setDisabled(true)
+            else option1.setDisabled(true)
 
             await interaction.editReply({
                 components: [
