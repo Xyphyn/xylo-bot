@@ -5,11 +5,12 @@ import warn from '@commands/moderation/warn.js'
 import mute from '@commands/moderation/mute.js'
 import delwarn from '@commands/moderation/delwarn.js'
 import unmute from '@commands/moderation/unmute.js'
+import ban from '@commands/moderation/ban.js'
 
-const subcommands = [warnings, warn, mute, delwarn, unmute]
-
+const subcommands = [warnings, warn, mute, delwarn, unmute, ban]
 export default {
     cooldown: 1000,
+    subcommands: subcommands,
     metadata: {
         name: 'mod',
         description: 'Commands related to moderation',

@@ -66,7 +66,9 @@ export function makeStringMenu({
 }
 
 export function makeRow({ buttons }: { buttons?: buttonComponent[] }) {
-    const row = new ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>()
+    const row = new ActionRowBuilder<
+        ButtonBuilder | StringSelectMenuBuilder | RoleSelectMenuBuilder
+    >()
 
     if (buttons) {
         row.addComponents(

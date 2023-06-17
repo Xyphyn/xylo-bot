@@ -18,6 +18,9 @@ import fun from '@commands/fun/fun.js'
 import poll from '@commands/poll/poll.js'
 import weather from '@commands/weather.js'
 
+export const getSubcommand = (name: string, subcommands: SlashSubcommand[]) =>
+    subcommands.find((sc) => sc.metadata.name == name)
+
 export interface Command {
     permission?: bigint
     botpermission?: PermissionResolvable
@@ -27,6 +30,9 @@ export interface Command {
 
 export interface SlashCommand extends Command {
     metadata: ChatInputApplicationCommandData
+
+    subcommands?: SlashSubcommand[]
+
     execute: ({
         interaction,
         client,

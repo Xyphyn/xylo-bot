@@ -2,6 +2,7 @@ import {
     SlashCommandAutocomplete,
     commands,
     cooldowns,
+    getSubcommand,
 } from '@commands/command.js'
 import { BotEmoji, Color } from '@config/config.js'
 import {
@@ -55,6 +56,54 @@ export default {
                             ),
                         ],
                     })
+
+                    return
+                }
+            }
+
+            if (command.subcommands) {
+                const subcommand = getSubcommand(
+                    interaction.options.getSubcommand(),
+                    command.subcommands
+                )
+
+                if (subcommand?.botpermission) {
+                    if (
+                        interaction.guild?.members.me?.permissions.has(
+                            subcommand.botpermission
+                        ) == false
+                    ) {
+                        interaction.reply({
+                            ephemeral: true,
+                            embeds: [
+                                sendError(
+                                    `I need the \`${subcommand.botpermission.toString()}\` permission to run that.`
+                                ),
+                            ],
+                        })
+
+                        return
+                    }
+                }
+
+                if (subcommand?.permission) {
+                    if (
+                        !interaction.memberPermissions?.has(
+                            subcommand?.permission ??
+                                PermissionsBitField.Flags.SendMessages
+                        )
+                    ) {
+                        await interaction.reply({
+                            embeds: [
+                                sendError(
+                                    `You don't have permission to use that command.`
+                                ),
+                            ],
+                            ephemeral: true,
+                        })
+
+                        return
+                    }
                 }
             }
 

@@ -92,9 +92,18 @@ export default {
             ephemeral: silent,
         })
 
-        const member = await interaction.guild.members.fetch({
-            user,
-        })
+        const member = await interaction.guild.members
+            .fetch({
+                user,
+            })
+            .catch((_) => undefined)
+
+        if (!member) {
+            await interaction.editReply({
+                embeds: [sendError(`That user isn't in the guild.`)],
+            })
+            return
+        }
 
         if (!member.moderatable) {
             await interaction.editReply({

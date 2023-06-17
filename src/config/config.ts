@@ -3,15 +3,16 @@ import { caching } from 'cache-manager'
 
 export enum Color {
     primary = 0xffffff,
-    error = 0xee3333,
-    success = 0x33ee77,
-    warning = 0xffdd33,
+    error = 0xda373c,
+    success = 0x2dc770,
+    warning = 0xffcc33,
 }
 
 export enum BotEmoji {
-    error = '<:error:1110296556118233250>',
-    success = '<:success:1110297580358864966>',
-    warning = '<:warning:1110297581281619969>',
+    error = '<:error:1119439881148571679>',
+    success = '<:success:1119439884051026000>',
+    warning = '<:warning:1119439886588592178>',
+    shield = '<:shieldexclamation:1119439885435162717>',
 }
 
 const configCache = await caching('memory', {
