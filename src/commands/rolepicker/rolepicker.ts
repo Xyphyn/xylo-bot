@@ -243,7 +243,7 @@ export default {
     permission: PermissionsBitField.Flags.Administrator,
 
     async execute(args) {
-        subcommands
+        await subcommands
             .find(
                 (sc) =>
                     sc.metadata.name == args.interaction.options.getSubcommand()

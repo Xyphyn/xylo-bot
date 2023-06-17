@@ -14,7 +14,7 @@ export default {
     },
 
     async execute({ interaction, client }) {
-        subcommands
+        await subcommands
             .find(
                 (sc) => sc.metadata.name == interaction.options.getSubcommand()
             )

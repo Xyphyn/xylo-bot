@@ -4,14 +4,8 @@ import {
     cooldowns,
     getSubcommand,
 } from '@commands/command.js'
-import { BotEmoji, Color } from '@config/config.js'
-import {
-    Client,
-    EmbedBuilder,
-    Interaction,
-    PermissionsBitField,
-} from 'discord.js'
-import { sendError } from 'util/messaging.js'
+import { Client, Interaction, PermissionsBitField } from 'discord.js'
+import { sendError, sendStaff } from 'util/messaging.js'
 
 interface InteractionListener {
     filter: (interaction: Interaction) => boolean
@@ -36,6 +30,7 @@ export default {
 
         if (interaction.isChatInputCommand()) {
             const command = commands.get(interaction.commandName)
+            console.log(interaction.options.data)
 
             if (!command) return
             if (!cooldowns.has(command.metadata.name)) {
@@ -151,25 +146,48 @@ export default {
                 }
             }
 
-            command.execute({ interaction, client }).catch((err) => {
+            await command.execute({ interaction, client }).catch((err) => {
                 console.error(err)
 
-                const errorEmbed = new EmbedBuilder()
-                    .setTitle('Error')
-                    .setColor(Color.error)
-                    .setDescription(
-                        `${BotEmoji.error} There was an error executing the command.`
-                    )
-                    .addFields([
-                        {
-                            name: 'Message',
-                            value: `\`\`\`${err}\`\`\``,
-                        },
-                    ])
+                if (!interaction.replied) {
+                    interaction.reply({
+                        embeds: [
+                            sendError(
+                                `There was an error executing the command.`,
+                                err
+                            ),
+                        ],
+                        ephemeral: true,
+                    })
+                } else {
+                    interaction.editReply({
+                        embeds: [
+                            sendError(
+                                `There was an error executing the command.`,
+                                err
+                            ),
+                        ],
+                    })
+                }
 
-                interaction.channel?.send({
-                    embeds: [errorEmbed],
-                })
+                sendStaff(
+                    sendError(
+                        `Error executing \`/${interaction.commandName} ${
+                            interaction.options.getSubcommand() ?? ''
+                        }\``,
+                        err
+                    ).addFields({
+                        name: 'Options',
+                        value: `\`\`\`js\n${interaction.options.data.map((o) =>
+                            JSON.stringify(o.options, undefined, 2).slice(
+                                0,
+                                1000
+                            )
+                        )}\n\`\`\``,
+                    }),
+                    undefined,
+                    interaction.guild ?? undefined
+                )
             })
         } else if (interaction.isAutocomplete()) {
             const command = commands.get(interaction.commandName) as

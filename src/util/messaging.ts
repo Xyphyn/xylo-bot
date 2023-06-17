@@ -12,7 +12,7 @@ export function sendError(message: string, error?: Error) {
         embed
             .addFields({
                 name: 'Message',
-                value: `\`\`\`${error.name}\`\`\``,
+                value: `\`\`\`${error.message.slice(0, 4080)}\`\`\``,
             })
             .setFooter({ text: 'Please inform a server admin about this.' })
     }

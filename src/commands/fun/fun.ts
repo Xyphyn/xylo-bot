@@ -32,7 +32,7 @@ export default {
                     args.interaction.options.getSubcommandGroup()
             )
 
-        command?.execute(args)
+        await command?.execute(args)
     },
 
     async autocomplete(interaction) {

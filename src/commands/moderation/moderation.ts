@@ -22,7 +22,7 @@ export default {
     botpermission: 'ModerateMembers',
 
     async execute(args) {
-        subcommands
+        await subcommands
             .find(
                 (sc) =>
                     args.interaction.options.getSubcommand() == sc.metadata.name
