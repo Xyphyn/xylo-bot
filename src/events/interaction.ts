@@ -30,7 +30,6 @@ export default {
 
         if (interaction.isChatInputCommand()) {
             const command = commands.get(interaction.commandName)
-            console.log(interaction.options.data)
 
             if (!command) return
             if (!cooldowns.has(command.metadata.name)) {
