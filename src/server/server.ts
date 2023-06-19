@@ -17,22 +17,12 @@ const userCache = await caching('memory', {
 export async function fetchUser(token: string): Promise<AuthUser | undefined> {
     return await userCache
         .wrap(token, async () => {
-            const start = Date.now()
             const user = await oauth.getUser(token)
             const guilds = (await oauth.getUserGuilds(token))
                 .filter((guild) =>
                     client.guilds.cache.map((g) => g.id).includes(guild.id)
                 )
                 .filter((guild) => guild.owner)
-            console.log(
-                chalk.blue(
-                    `☁️ Fetched user ${chalk.bold(
-                        user.username
-                    )} in ${chalk.bold(
-                        ((Date.now() - start) / 1000).toFixed(2)
-                    )}s`
-                )
-            )
             return {
                 guilds: guilds,
                 ...user,
