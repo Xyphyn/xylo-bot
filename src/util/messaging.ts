@@ -4,7 +4,6 @@ import { ActionRowBuilder, EmbedBuilder, Guild } from 'discord.js'
 
 export function sendError(message: string, error?: Error) {
     const embed = new EmbedBuilder()
-        .setTitle(`Error`)
         .setDescription(`${BotEmoji.error} ${message}`)
         .setColor(Color.error)
 
@@ -22,7 +21,6 @@ export function sendError(message: string, error?: Error) {
 
 export const sendSuccess = (message: string) =>
     new EmbedBuilder()
-        .setTitle(`Success`)
         .setDescription(`${BotEmoji.success} ${message}`)
         .setColor(Color.success)
 
